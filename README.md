@@ -1,109 +1,108 @@
 # ShellArie
 
-Shell [Quickshell](https://quickshell.org) pour **Hyprland** (Arch Linux) : barre principale, dashboard déroulant, notifications et seconde barre d'applications.
+A [Quickshell](https://quickshell.org) shell for **Hyprland** (Arch Linux): main bar, drop-down dashboard, notifications and a second bar showing your open applications.
 
-
-![ShellArie sur un fond de forêt](docs/screenshots/screenshot-1.webp)
+![ShellArie on a forest wallpaper](docs/screenshots/screenshot-1.webp)
 
 <p>
-  <img src="docs/screenshots/screenshot-2.webp" width="49%" alt="ShellArie, thème sombre monochrome">
-  <img src="docs/screenshots/screenshot-3.webp" width="49%" alt="ShellArie, thème chaud">
+  <img src="docs/screenshots/screenshot-2.webp" width="49%" alt="ShellArie, dark monochrome theme">
+  <img src="docs/screenshots/screenshot-3.webp" width="49%" alt="ShellArie, warm theme">
 </p>
 
-La barre principale en haut, et la seconde barre d'applications collée en dessous. Les couleurs suivent le fond d'écran.
+The main bar sits at the top and the application bar is attached right below it. Colors follow the wallpaper.
 
-## Fonctionnalités
+## Features
 
-- **Barre principale** : workspaces (clic pour y aller, glisser-déposer de fenêtres), horloge, lecteur média, débit réseau, Wi-Fi / Bluetooth / Ethernet, batterie, volume, luminosité, ressources (CPU / RAM / disque), Tailscale.
-- **Dashboard** sous la barre : tableau de bord, média (paroles), performances, météo.
-- **Notifications** : popups et centre de notifications avec mode Ne pas déranger.
-- **Seconde barre** collée sous la barre principale : icônes des applications ouvertes.
-  - clic : va sur le workspace de l'application (la lance si elle est fermée) ;
-  - clic droit : épingle / désépingle l'application (conservé après redémarrage) ;
-  - affichée avec `SUPER + Tab`, automatiquement quand rofi est ouvert ou quand le workspace actif est vide.
+- **Main bar**: workspaces (click to switch, drag and drop windows between them), clock, media player, network throughput, Wi-Fi / Bluetooth / Ethernet, battery, volume, brightness, resources (CPU / RAM / disk), Tailscale.
+- **Dashboard** below the bar: overview, media (lyrics), performance, weather.
+- **Notifications**: popups and a notification center with a Do Not Disturb mode.
+- **Application bar** attached under the main bar, showing an icon for each open application:
+  - click: jump to the application's workspace (launches it if it is closed);
+  - right click: pin / unpin the application (kept across reboots);
+  - shown with `SUPER + Tab`, automatically while rofi is open, and when the active workspace is empty.
 
-## Prérequis
+## Requirements
 
-| Composant | Rôle |
+| Component | Purpose |
 |---|---|
-| Hyprland ≥ 0.56 | les actions utilisent la syntaxe Lua (`hl.dsp.*`) |
-| `quickshell-git` (AUR) | le shell |
-| Module QML **Caelestia** | composants, services et configuration (à compiler depuis [caelestia-dots/shell](https://github.com/caelestia-dots/shell), installé dans `/usr/lib/qt6/qml/Caelestia`) |
-| [`metricd`](https://github.com/Arch-Noah/metricd) | démon fournissant CPU / RAM / disque / débit via `$XDG_RUNTIME_DIR/metricd.sock` |
-| `networkmanager`, `bluez`, `bluez-utils`, `wireplumber`, `libpulse`, `brightnessctl`, `upower`, `power-profiles-daemon` | réseau, Bluetooth, audio, luminosité, énergie |
-| `inotify-tools`, `openbsd-netcat` | surveillance de fichiers, accès au socket metricd |
-| `rofi` | lanceur |
-| `ttf-jetbrains-mono-nerd`, `ttf-material-symbols-variable-git` | polices d'icônes |
+| Hyprland ≥ 0.56 | actions use the Lua dispatcher syntax (`hl.dsp.*`) |
+| `quickshell-git` (AUR) | the shell runtime |
+| **Caelestia** QML module | components, services and configuration (build it from [caelestia-dots/shell](https://github.com/caelestia-dots/shell); it installs into `/usr/lib/qt6/qml/Caelestia`) |
+| [`metricd`](https://github.com/Arch-Noah/metricd) | daemon providing CPU / RAM / disk / throughput through `$XDG_RUNTIME_DIR/metricd.sock` |
+| `networkmanager`, `bluez`, `bluez-utils`, `wireplumber`, `libpulse`, `brightnessctl`, `upower`, `power-profiles-daemon` | network, Bluetooth, audio, brightness, power |
+| `inotify-tools`, `openbsd-netcat` | file watching, access to the metricd socket |
+| `rofi` | application launcher |
+| `ttf-jetbrains-mono-nerd`, `ttf-material-symbols-variable-git` | icon fonts |
 
-Optionnels : `ddcutil` (écrans externes), `tailscale`, `matugen`, `cava`, `libqalculate`, `grim`, la CLI `caelestia` (fonds d'écran, enregistrement d'écran).
+Optional: `ddcutil` (external displays), `tailscale`, `matugen`, `cava`, `libqalculate`, `grim`, the `caelestia` CLI (wallpapers, screen recording).
 
-Scripts externes utilisés si présents dans `~/.config/hypr/scripts/` :
-- `qs_manager.sh` : panneaux ouverts par un clic sur les widgets réseau, batterie, volume ;
-- `generate_qs_colors.sh` : écrit les couleurs du thème dans `/tmp/qs_colors.json`.
+External scripts used when present in `~/.config/hypr/scripts/`:
+- `qs_manager.sh`: panels opened by clicking the network, battery and volume widgets;
+- `generate_qs_colors.sh`: writes the theme colors to `/tmp/qs_colors.json`.
 
 ## Installation
 
 ```bash
-git clone <url-du-dépôt> ~/.config/quickshell/ShellArie
+git clone https://github.com/Arch-Noah/ShellArie.git ~/.config/quickshell/ShellArie
 cd ~/.config/quickshell/ShellArie
-./install.sh --check   # vérifie les dépendances sans rien modifier
-./install.sh           # installe les paquets manquants, crée le dossier d'état
+./install.sh --check   # check dependencies without changing anything
+./install.sh           # install missing packages, create the state directory
 ```
 
-`install.sh --yes` répond oui à toutes les questions. Le script installe les paquets des dépôts officiels ; Quickshell, le module Caelestia, la police Material Symbols et metricd restent à installer à la main, il vous indique lesquels manquent.
+`install.sh --yes` answers yes to every question. The script installs packages from the official repositories; Quickshell, the Caelestia module, the Material Symbols font and metricd must be installed by hand, and the script tells you which ones are missing.
 
-### Configuration Hyprland
+### Hyprland configuration
 
-Dans votre configuration Lua :
+In your Lua configuration:
 
 ```lua
--- lancement au démarrage
+-- start with the session
 hl.exec_cmd("~/.config/quickshell/ShellArie/start.sh")
 
--- afficher / masquer la seconde barre
+-- show / hide the application bar
 hl.bind("SUPER + Tab", hl.dsp.exec_cmd(
     "qs ipc -p " .. os.getenv("HOME") .. "/.config/quickshell/ShellArie/shell.qml call taskbar toggle"))
 ```
 
-## Utilisation
+## Usage
 
-`./start.sh` (re)lance le shell, `./start.sh -q` l'arrête. Quickshell recharge les fichiers QML à chaud quand ils changent.
+`./start.sh` (re)starts the shell and `./start.sh -q` stops it. Quickshell hot-reloads QML files when they change.
 
-Commandes IPC (`qs ipc -p ~/.config/quickshell/ShellArie/shell.qml call <cible> <fonction>`) :
+IPC commands (`qs ipc -p ~/.config/quickshell/ShellArie/shell.qml call <target> <function>`):
 
-| Cible | Fonction | Effet |
+| Target | Function | Effect |
 |---|---|---|
-| `taskbar` | `toggle` | affiche / masque la seconde barre |
-| `taskbar` | `togglePin <appId>` | épingle / désépingle une application |
-| `dashboard` | `toggle`, `showTab <n>` | ouvre le dashboard (sur l'onglet *n*) |
+| `taskbar` | `toggle` | show / hide the application bar |
+| `taskbar` | `togglePin <appId>` | pin / unpin an application |
+| `dashboard` | `toggle`, `showTab <n>` | open the dashboard (on tab *n*) |
 
-`qs ipc -p … show` liste toutes les cibles disponibles (média, volume, luminosité, notifications…).
+`qs ipc -p … show` lists every available target (media, volume, brightness, notifications…).
 
-### Données et variables d'environnement
+### Data and environment variables
 
-| Élément | Emplacement |
+| Item | Location |
 |---|---|
-| Applications épinglées | `~/.local/state/shellarie/taskbar-pins.json` (`$XDG_STATE_HOME`) |
-| Couleurs du thème | `/tmp/qs_colors.json`, modifiable avec `QS_COLORS_FILE` |
-| Échelle de l'interface | `uiScale` dans `~/.config/hypr/settings.json` |
-| Socket metricd | `$XDG_RUNTIME_DIR/metricd.sock` |
+| Pinned applications | `~/.local/state/shellarie/taskbar-pins.json` (`$XDG_STATE_HOME`) |
+| Theme colors | `/tmp/qs_colors.json`, overridable with `QS_COLORS_FILE` |
+| UI scale | `uiScale` in `~/.config/hypr/settings.json` |
+| metricd socket | `$XDG_RUNTIME_DIR/metricd.sock` |
 
-## Structure
+## Layout
 
 ```
-shell.qml        point d'entrée
-bar/             barre principale, seconde barre (Taskbar.qml), widgets
+shell.qml        entry point
+bar/             main bar, application bar (Taskbar.qml), widgets
 modules/         dashboard, notifications
-services/        services (réseau, audio, Hyprland, Metricd, TaskbarPins, VPN…)
-components/      composants graphiques réutilisables
-utils/           chemins (Paths.qml), icônes, scripts JS
-commons/         styles et couleurs
-assets/          polices, images
+services/        services (network, audio, Hyprland, Metricd, TaskbarPins, VPN…)
+components/      reusable UI components
+utils/           paths (Paths.qml), icons, JS helpers
+commons/         styles and colors
+assets/          fonts, images
 ```
 
-## Dépannage
+## Troubleshooting
 
-- **Barre vide ou valeurs à 0 (CPU, RAM, débit)** : vérifiez `systemctl --user status metricd`.
-- **Les clics sur les workspaces ne font rien** : Hyprland < 0.56. La syntaxe `hyprctl dispatch workspace 2` n'existe plus, les actions passent par `hl.dsp.*`.
-- **Icônes remplacées par des lettres** dans la seconde barre : l'application n'a pas d'icône dans votre thème d'icônes.
-- **Logs** : `qs log -p ~/.config/quickshell/ShellArie/shell.qml`.
+- **Empty bar or values stuck at 0 (CPU, RAM, throughput)**: check `systemctl --user status metricd`.
+- **Clicking workspaces does nothing**: Hyprland < 0.56. The `hyprctl dispatch workspace 2` syntax is gone, actions go through `hl.dsp.*`.
+- **Icons replaced by letters** in the application bar: the application has no icon in your icon theme.
+- **Logs**: `qs log -p ~/.config/quickshell/ShellArie/shell.qml`.
