@@ -14,6 +14,15 @@ Item {
     property real barHeight: 40
     // Masquée pendant que le dashboard est ouvert (il occupe la même place)
     property bool suppressed: false
+    // Affichage demandé explicitement (raccourci, rofi...)
+    property bool forceShow: false
+
+    // Le workspace actif de cet écran n'a aucune fenêtre : on affiche la barre
+    // pour pouvoir rejoindre une application ouverte ailleurs.
+    readonly property var activeWs: Hyprland.monitorFor(root.screen)?.activeWorkspace ?? null
+    readonly property bool onEmptyWorkspace: activeWs !== null
+        && !activeWs.name.startsWith("special:")
+        && activeWs.toplevels.values.length === 0
 
     readonly property real notchRadius: 20
     readonly property color fill: Styles.mixAlpha(Styles.background, 0.90)
@@ -32,7 +41,7 @@ Item {
         return out;
     }
 
-    readonly property bool shown: windows.length > 0 && !suppressed
+    readonly property bool shown: windows.length > 0 && !suppressed && (forceShow || onEmptyWorkspace)
     property real reveal: shown ? 1 : 0
     Behavior on reveal { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
 

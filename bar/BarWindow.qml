@@ -141,7 +141,8 @@ Scope {
                         id: taskbar
                         screen: modelData
                         barHeight: barRect.height
-                        suppressed: dashWrapper.visible || !(root.taskbarEnabled || root.rofiOpen)
+                        suppressed: dashWrapper.visible
+                        forceShow: root.taskbarEnabled || root.rofiOpen
                         anchors.top: barRect.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
                         z: -1 // Derrière la barre, comme le dashboard
