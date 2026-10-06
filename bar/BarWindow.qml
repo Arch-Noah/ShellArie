@@ -81,6 +81,15 @@ Scope {
                     x: 0; y: 0
                     width: barWindow.width
                     height: dashWrapper.visible ? (barRect.height + 10 + dashWrapper.implicitHeight) : barRect.height
+                    // Zone cliquable de la seconde barre (union avec le rectangle ci-dessus)
+                    regions: [
+                        Region {
+                            x: taskbar.x
+                            y: taskbar.y
+                            width: taskbar.width
+                            height: taskbar.height
+                        }
+                    ]
                 }
 
                 HyprlandFocusGrab {
@@ -101,6 +110,16 @@ Scope {
                         // No anchors.topMargin here because Wrapper.qml defines its own animated anchors.topMargin!
                         anchors.horizontalCenter: parent.horizontalCenter
                         z: -1 // Behind the bar
+                    }
+
+                    Taskbar {
+                        id: taskbar
+                        screen: modelData
+                        barHeight: barRect.height
+                        suppressed: dashWrapper.visible
+                        anchors.top: barRect.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        z: -1 // Derrière la barre, comme le dashboard
                     }
 
                     Rectangle {
