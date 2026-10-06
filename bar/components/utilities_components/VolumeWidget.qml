@@ -4,6 +4,7 @@ import QtQuick.Controls.Basic
 import Quickshell
 import Quickshell.Io
 import "../../commons"
+import qs.utils
 
 Rectangle {
     id: root
@@ -186,7 +187,7 @@ Rectangle {
     
     Process {
         id: clickProcess
-        command: ["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle volume"]
+        command: [Paths.qsManager, "toggle", "volume"]
     }
     
     MouseArea {

@@ -23,6 +23,17 @@ Singleton {
     readonly property string recsdir: Quickshell.env("CAELESTIA_RECORDINGS_DIR") || `${videos}/Recordings`
     readonly property string libdir: Quickshell.env("CAELESTIA_LIB_DIR") || "/usr/lib/caelestia"
 
+    readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || "/tmp"
+    readonly property string hyprConfig: `${Quickshell.env("XDG_CONFIG_HOME") || `${home}/.config`}/hypr`
+    readonly property string hyprSettings: `${hyprConfig}/settings.json`
+    readonly property string qsManager: `${hyprConfig}/scripts/qs_manager.sh`
+    readonly property string metricdSocket: `${runtime}/metricd.sock`
+    readonly property string colorsFile: Quickshell.env("QS_COLORS_FILE") || "/tmp/qs_colors.json"
+    readonly property string colorsDir: colorsFile.substring(0, colorsFile.lastIndexOf("/"))
+    readonly property string colorsRegex: "^" + colorsFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"
+    readonly property string colorsName: colorsFile.substring(colorsFile.lastIndexOf("/") + 1)
+    readonly property string defaultPlayerArt: `file://${Quickshell.shellPath("assets/player_default.png")}`
+
     function toLocalFile(path: url): string {
         path = Qt.resolvedUrl(path);
         return path.toString() ? CUtils.toLocalFile(path) : "";

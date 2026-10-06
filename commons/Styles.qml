@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell.Io
+import qs.utils
 
 Item {
     id: root
@@ -53,50 +54,39 @@ Item {
         }
     }
 
-    Process {
-        id: readerProcess
-        command: ["cat", "/tmp/qs_colors.json"]
-        stdout: SplitParser {
-            property string buffer: ""
-            onRead: (data) => {
-                buffer += data + "\n";
-            }
+    // Lecture du fichier : FileView gère l'absence/les erreurs sans lancer de processus
+    FileView {
+        id: colorsReader
+        path: Paths.colorsFile
+        onLoaded: {
+            const txt = text().trim();
+            if (txt !== "")
+                root.applyColors(txt);
         }
-        onRunningChanged: {
-            if (!running) {
-                if (stdout.buffer.trim() !== "") {
-                    applyColors(stdout.buffer);
-                }
-                stdout.buffer = "";
-            }
-        }
+        onLoadFailed: error => console.warn("Styles.qml: cannot read " + Paths.colorsFile + " (" + error + ")")
     }
 
     Timer {
         id: debounceTimer
         interval: 50
         repeat: false
-        onTriggered: {
-            if (!readerProcess.running) {
-                readerProcess.running = true;
-            }
-        }
+        onTriggered: colorsReader.reload()
     }
 
     Process {
         id: watcherProcess
-        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "/tmp/"]
+        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "--include", Paths.colorsRegex, Paths.colorsDir]
         running: true
+        // inotifywait peut mourir (dossier supprimé...) : on le relance
+        onRunningChanged: if (!running) watcherRestart.start()
         stdout: SplitParser {
-            onRead: (data) => {
-                if (data.indexOf("qs_colors.json") !== -1) {
-                    debounceTimer.restart();
-                }
-            }
+            onRead: debounceTimer.restart()
         }
     }
 
-    Component.onCompleted: {
-        readerProcess.running = true;
+    Timer {
+        id: watcherRestart
+        interval: 2000
+        onTriggered: watcherProcess.running = true
     }
 }

@@ -1,9 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Io
 import "../commons"
 
 RowLayout {
@@ -81,15 +79,18 @@ RowLayout {
         Hyprland.refreshToplevels();
     }
 
-    Component {
-        id: hyprctlComponent
-        Process {
-            onRunningChanged: if (!running) destroy()
-        }
+    // Hyprland >= 0.56 : les dispatchers sont des expressions Lua (hl.dsp.*).
+    // Dispatch natif via le socket IPC (pas de processus hyprctl à lancer).
+    function focusWorkspace(id) {
+        Hyprland.dispatch(`hl.dsp.focus({ workspace = '${id}' })`);
     }
 
-    function dispatchHyprctl(args) {
-        hyprctlComponent.createObject(workspacesLayout, { command: ["hyprctl", "dispatch"].concat(args), running: true });
+    function toggleSpecial() {
+        Hyprland.dispatch("hl.dsp.workspace.toggle_special('scratchpad')");
+    }
+
+    function moveWindowSilent(workspace, address) {
+        Hyprland.dispatch(`hl.dsp.window.move({ workspace = '${workspace}', window = 'address:${address}', follow = false })`);
     }
 
     // Lock Button
@@ -137,9 +138,9 @@ RowLayout {
         DropArea {
             anchors.fill: parent
             onDropped: function(drop) {
-                var address = drag.source.mimeData["text/plain"];
+                var address = drop.source.mimeData["text/plain"];
                 if (address) {
-                    dispatchHyprctl(["movetoworkspacesilent", "special,address:" + address]);
+                    moveWindowSilent("special:scratchpad", address);
                 }
             }
         }
@@ -149,7 +150,7 @@ RowLayout {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                dispatchHyprctl(["togglespecialworkspace"]);
+                toggleSpecial();
             }
         }
     }
@@ -214,9 +215,9 @@ RowLayout {
                 DropArea {
                     anchors.fill: parent
                     onDropped: function(drop) {
-                        var address = drag.source.mimeData["text/plain"];
+                        var address = drop.source.mimeData["text/plain"];
                         if (address) {
-                            dispatchHyprctl(["movetoworkspacesilent", modelData.id + ",address:" + address]);
+                            workspacesLayout.moveWindowSilent(modelData.id, address);
                         }
                     }
                 }
@@ -226,33 +227,7 @@ RowLayout {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        dispatchHyprctl(["workspace", modelData.id.toString()]);
-                    }
-                    onEntered: {
-                        overviewPopup.open()
-                    }
-                    onExited: {
-                        overviewPopup.close()
-                    }
-                }
-                
-                // Popover equivalent in QML Controls
-                Popup {
-                    id: overviewPopup
-                    y: wsButton.height + 10
-                    x: (wsButton.width - width) / 2
-                    width: 250
-                    height: 150
-                    padding: 0
-                    closePolicy: Popup.NoAutoClose
-                    background: Rectangle { color: "transparent" }
-                    
-                    Loader {
-                        anchors.fill: parent
-                        active: overviewPopup.opened
-                        sourceComponent: WorkspaceOverview {
-                            workspaceId: modelData.id
-                        }
+                        workspacesLayout.focusWorkspace(modelData.id);
                     }
                 }
             }
