@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Io
 import qs.services
 import "../modules/dashboard" as Dashboard
 import "commons"
@@ -12,6 +13,34 @@ Scope {
     id: root
 
     property bool isBarLocked: true
+    // Seconde barre (icônes des applications) : masquée par défaut, bascule via
+    // `qs ipc call taskbar toggle`, et affichée automatiquement tant que rofi est ouvert.
+    property bool taskbarEnabled: false
+    property bool rofiOpen: false
+
+    Connections {
+        target: Hyprland
+        // rofi est une layer-surface (namespace "rofi") : openlayer/closelayer
+        function onRawEvent(event) {
+            if (event.data !== "rofi")
+                return;
+            if (event.name === "openlayer")
+                root.rofiOpen = true;
+            else if (event.name === "closelayer")
+                root.rofiOpen = false;
+        }
+    }
+
+    IpcHandler {
+        target: "taskbar"
+        function toggle(): void {
+            root.taskbarEnabled = !root.taskbarEnabled;
+        }
+        // Épingle / désépingle une application : qs ipc call taskbar togglePin <appId>
+        function togglePin(appId: string): void {
+            TaskbarPins.toggle(appId);
+        }
+    }
 
     Instantiator {
         model: Quickshell.screens
@@ -81,6 +110,15 @@ Scope {
                     x: 0; y: 0
                     width: barWindow.width
                     height: dashWrapper.visible ? (barRect.height + 10 + dashWrapper.implicitHeight) : barRect.height
+                    // Zone cliquable de la seconde barre (union avec le rectangle ci-dessus)
+                    regions: [
+                        Region {
+                            x: taskbar.x
+                            y: taskbar.y
+                            width: taskbar.width
+                            height: taskbar.height
+                        }
+                    ]
                 }
 
                 HyprlandFocusGrab {
@@ -101,6 +139,17 @@ Scope {
                         // No anchors.topMargin here because Wrapper.qml defines its own animated anchors.topMargin!
                         anchors.horizontalCenter: parent.horizontalCenter
                         z: -1 // Behind the bar
+                    }
+
+                    Taskbar {
+                        id: taskbar
+                        screen: modelData
+                        barHeight: barRect.height
+                        suppressed: dashWrapper.visible
+                        forceShow: root.taskbarEnabled || root.rofiOpen
+                        anchors.top: barRect.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        z: -1 // Derrière la barre, comme le dashboard
                     }
 
                     Rectangle {
