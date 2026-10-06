@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Io
 import qs.services
 import "../modules/dashboard" as Dashboard
 import "commons"
@@ -12,6 +13,15 @@ Scope {
     id: root
 
     property bool isBarLocked: true
+    // Seconde barre (icônes des applications) : bascule via `qs ipc call taskbar toggle`
+    property bool taskbarEnabled: true
+
+    IpcHandler {
+        target: "taskbar"
+        function toggle(): void {
+            root.taskbarEnabled = !root.taskbarEnabled;
+        }
+    }
 
     Instantiator {
         model: Quickshell.screens
@@ -116,7 +126,7 @@ Scope {
                         id: taskbar
                         screen: modelData
                         barHeight: barRect.height
-                        suppressed: dashWrapper.visible
+                        suppressed: dashWrapper.visible || !root.taskbarEnabled
                         anchors.top: barRect.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
                         z: -1 // Derrière la barre, comme le dashboard

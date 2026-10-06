@@ -42,8 +42,18 @@ Item {
     height: barHeight * reveal
     clip: true
 
-    function focusWindow(address) {
-        Hyprland.dispatch(`hl.dsp.focus({ window = 'address:${address}' })`);
+    // Va sur le workspace de l'application puis focalise la fenêtre
+    function focusWindow(toplevel) {
+        const ws = toplevel.workspace;
+        if (ws) {
+            if (ws.name.startsWith("special:")) {
+                if (Hyprland.focusedWorkspace?.name !== ws.name)
+                    Hyprland.dispatch(`hl.dsp.workspace.toggle_special('${ws.name.slice(8)}')`);
+            } else if (Hyprland.focusedWorkspace?.id !== ws.id) {
+                Hyprland.dispatch(`hl.dsp.focus({ workspace = '${ws.id}' })`);
+            }
+        }
+        Hyprland.dispatch(`hl.dsp.focus({ window = 'address:0x${String(toplevel.address).replace(/^0x/, '')}' })`);
     }
 
     Component.onCompleted: Hyprland.refreshToplevels()
@@ -109,7 +119,7 @@ Item {
         RowLayout {
             id: row
             anchors.centerIn: parent
-            spacing: 4
+            spacing: 10
 
             Repeater {
                 model: root.windows
@@ -156,7 +166,7 @@ Item {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.focusWindow(item.modelData.address)
+                        onClicked: root.focusWindow(item.modelData)
                     }
                 }
             }
