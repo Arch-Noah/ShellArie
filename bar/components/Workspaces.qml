@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Io
 import "../commons"
 
 RowLayout {
@@ -80,15 +79,9 @@ RowLayout {
         Hyprland.refreshToplevels();
     }
 
-    Component {
-        id: hyprctlComponent
-        Process {
-            onRunningChanged: if (!running) destroy()
-        }
-    }
-
+    // Dispatch natif via le socket IPC de Hyprland (pas de processus hyprctl à lancer)
     function dispatchHyprctl(args) {
-        hyprctlComponent.createObject(workspacesLayout, { command: ["hyprctl", "dispatch"].concat(args), running: true });
+        Hyprland.dispatch(args.join(" "));
     }
 
     // Lock Button
@@ -136,7 +129,7 @@ RowLayout {
         DropArea {
             anchors.fill: parent
             onDropped: function(drop) {
-                var address = drag.source.mimeData["text/plain"];
+                var address = drop.source.mimeData["text/plain"];
                 if (address) {
                     dispatchHyprctl(["movetoworkspacesilent", "special,address:" + address]);
                 }
@@ -213,7 +206,7 @@ RowLayout {
                 DropArea {
                     anchors.fill: parent
                     onDropped: function(drop) {
-                        var address = drag.source.mimeData["text/plain"];
+                        var address = drop.source.mimeData["text/plain"];
                         if (address) {
                             dispatchHyprctl(["movetoworkspacesilent", modelData.id + ",address:" + address]);
                         }
