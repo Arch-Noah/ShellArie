@@ -23,8 +23,8 @@ Singleton {
     readonly property string recsdir: Quickshell.env("CAELESTIA_RECORDINGS_DIR") || `${videos}/Recordings`
     readonly property string libdir: Quickshell.env("CAELESTIA_LIB_DIR") || "/usr/lib/caelestia"
 
-    readonly property string archshellState: `${Quickshell.env("XDG_STATE_HOME") || `${home}/.local/state`}/archshell`
-    readonly property string pinsFile: `${archshellState}/taskbar-pins.json`
+    readonly property string shellarieState: `${Quickshell.env("XDG_STATE_HOME") || `${home}/.local/state`}/shellarie`
+    readonly property string pinsFile: `${shellarieState}/taskbar-pins.json`
     readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || "/tmp"
     readonly property string hyprConfig: `${Quickshell.env("XDG_CONFIG_HOME") || `${home}/.config`}/hypr`
     readonly property string hyprSettings: `${hyprConfig}/settings.json`

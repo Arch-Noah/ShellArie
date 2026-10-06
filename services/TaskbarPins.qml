@@ -6,7 +6,7 @@ import Quickshell.Io
 import qs.utils
 
 // Applications épinglées dans la seconde barre. Liste d'appId (classe de fenêtre)
-// sauvegardée sur disque : ~/.local/state/archshell/taskbar-pins.json, donc elle
+// sauvegardée sur disque : ~/.local/state/shellarie/taskbar-pins.json, donc elle
 // survit aux redémarrages du shell et de la machine.
 Singleton {
     id: root
@@ -40,7 +40,7 @@ Singleton {
         file.setText(JSON.stringify(pins, null, 2) + "\n");
     }
 
-    Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", Paths.archshellState])
+    Component.onCompleted: Quickshell.execDetached(["mkdir", "-p", Paths.shellarieState])
 
     FileView {
         id: file
