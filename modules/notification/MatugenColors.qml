@@ -58,13 +58,14 @@ Item {
     // ── JSON bridge ───────────────────────────────────────────────
     property string rawJson: ""
 
-    // Lecteur : cat Paths.colorsFile
-    Process {
+    // Lecteur : FileView (gère l'absence du fichier sans processus externe)
+    FileView {
         id: themeReader
-        command: ["cat", Paths.colorsFile]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                let txt = this.text.trim();
+        path: Paths.colorsFile
+        onLoadFailed: error => console.warn("MatugenColors: cannot read " + Paths.colorsFile + " (" + error + ")")
+        onLoaded: {
+            {
+                let txt = text().trim();
                 if (txt !== "" && txt !== root.rawJson) {
                     root.rawJson = txt;
                     try {
@@ -107,29 +108,27 @@ Item {
                         if (c.materialOrange) root.materialOrange = c.materialOrange;
                         if (c.materialYellow) root.materialYellow = c.materialYellow;
                     } catch(e) {
-                        console.log("MatugenColors: JSON parse error", e);
+                        console.warn("MatugenColors: JSON parse error", e);
                     }
                 }
             }
         }
     }
 
-    // Watcher événementiel (inotifywait) — remplace l'ancien Timer polling
+    // Watcher événementiel (inotifywait), relancé s'il meurt
     Process {
         id: themeWatcher
         command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "--include", Paths.colorsRegex, Paths.colorsDir]
         running: true
+        onRunningChanged: if (!running) watcherRestart.start()
         stdout: SplitParser {
-            onRead: (data) => {
-                if (data.indexOf(Paths.colorsName) !== -1) {
-                    themeReader.running = false;
-                    themeReader.running = true;
-                }
-            }
+            onRead: themeReader.reload()
         }
     }
 
-    Component.onCompleted: {
-        themeReader.running = true;
+    Timer {
+        id: watcherRestart
+        interval: 2000
+        onTriggered: themeWatcher.running = true
     }
 }

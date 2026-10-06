@@ -19,41 +19,41 @@ Item {
         return LayoutMath.s(val, baseScale); 
     }
 
-    Process {
-        id: scaleReader
-        command: ["bash", "-c", "cat \"$1\" 2>/dev/null || echo '{}'", "_", Paths.hyprSettings]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    if (this.text && this.text.trim().length > 0 && this.text.trim() !== "{}") {
-                        let parsed = JSON.parse(this.text);
-                        if (parsed.uiScale !== undefined && root.uiScale !== parsed.uiScale) {
-                            root.uiScale = parsed.uiScale;
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Scaler: invalid settings.json:", e);
-                }
-            }
+    function applySettings(txt) {
+        if (!txt || txt.trim().length === 0)
+            return;
+        try {
+            const parsed = JSON.parse(txt);
+            if (parsed.uiScale !== undefined && root.uiScale !== parsed.uiScale)
+                root.uiScale = parsed.uiScale;
+        } catch (e) {
+            console.warn("Scaler: invalid settings.json:", e);
         }
     }
 
-    // EVENT-DRIVEN WATCHER
+    // Absence du fichier = échelle par défaut, sans erreur
+    FileView {
+        id: scaleReader
+        path: Paths.hyprSettings
+        onLoaded: root.applySettings(text())
+    }
+
+    // Watcher événementiel sur le dossier (le fichier peut ne pas encore exister),
+    // relancé s'il meurt : plus de boucle `sleep 1` active.
     Process {
         id: scaleWatcher
-        // -qq keeps it completely silent. It waits for the file to exist, listens for a write, and then exits.
-        command: ["bash", "-c", "while [ ! -f \"$1\" ]; do sleep 1; done; inotifywait -qq -e modify,close_write \"$1\"", "_", Paths.hyprSettings]
+        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "--include",
+                  "^" + Paths.hyprSettings.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", Paths.hyprConfig]
         running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                // 1. Read the new data
-                scaleReader.running = false;
-                scaleReader.running = true;
-                // 2. Restart the watcher for the next event
-                scaleWatcher.running = false;
-                scaleWatcher.running = true;
-            }
+        onRunningChanged: if (!running) watcherRestart.start()
+        stdout: SplitParser {
+            onRead: scaleReader.reload()
         }
+    }
+
+    Timer {
+        id: watcherRestart
+        interval: 2000
+        onTriggered: scaleWatcher.running = true
     }
 }
