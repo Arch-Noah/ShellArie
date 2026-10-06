@@ -32,7 +32,9 @@ Item {
         return (t.wayland?.appId || t.lastIpcObject?.class || "").toString();
     }
 
-    // Fenêtres de cet écran, triées par adresse
+    // Toutes les fenêtres, tous écrans confondus : l'état est identique sur chaque barre
+    // (sinon une app ouverte sur un autre écran apparaîtrait comme fermée ici).
+    // Triées par adresse
     readonly property var windows: {
         const out = [];
         const list = Hyprland.toplevels.values;
@@ -41,9 +43,6 @@ Item {
             // Certains clients (ex. Electron) exposent des toplevels fantômes, sans
             // workspace ni fenêtre réelle dans Hyprland : on les ignore.
             if (!t.workspace)
-                continue;
-            const mon = t.workspace.monitor?.name ?? "";
-            if (mon !== "" && root.screen && mon !== root.screen.name)
                 continue;
             out.push(t);
         }
@@ -99,6 +98,14 @@ Item {
     // avec plusieurs fenêtres, passe à la suivante à chaque clic.
     function activate(entry) {
         if (entry.windows.length === 0) {
+            // Dernière vérification sur l'état courant de Hyprland : ne jamais relancer
+            // une application qui a déjà une fenêtre ouverte (sur n'importe quel écran).
+            const cls = TaskbarPins.normalize(entry.cls);
+            const live = Hyprland.toplevels.values.filter(t => t.workspace && TaskbarPins.normalize(classOf(t)) === cls);
+            if (live.length > 0) {
+                focusWindow(live[0]);
+                return;
+            }
             const de = DesktopEntries.heuristicLookup(entry.cls);
             if (de)
                 de.execute();
