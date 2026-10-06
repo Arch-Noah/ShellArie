@@ -38,7 +38,11 @@ Item {
         const list = Hyprland.toplevels.values;
         for (let i = 0; i < list.length; i++) {
             const t = list[i];
-            const mon = t.workspace?.monitor?.name ?? "";
+            // Certains clients (ex. Electron) exposent des toplevels fantômes, sans
+            // workspace ni fenêtre réelle dans Hyprland : on les ignore.
+            if (!t.workspace)
+                continue;
+            const mon = t.workspace.monitor?.name ?? "";
             if (mon !== "" && root.screen && mon !== root.screen.name)
                 continue;
             out.push(t);
@@ -189,7 +193,7 @@ Item {
                     readonly property bool isActive: modelData.windows.indexOf(Hyprland.activeToplevel) !== -1
 
                     // Épinglée mais fermée : atténuée
-                    opacity: running ? 1.0 : 0.55
+                    opacity: running ? 1.0 : 0.4
 
                     Layout.preferredWidth: 30
                     Layout.preferredHeight: 30
@@ -216,6 +220,18 @@ Item {
                         source: item.iconSource
                         asynchronous: true
                         smooth: true
+                    }
+
+                    // Point sous l'icône : l'application est ouverte
+                    Rectangle {
+                        visible: item.running
+                        width: 4
+                        height: 4
+                        radius: 2
+                        color: Styles.foreground
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 1
                     }
 
                     MouseArea {
