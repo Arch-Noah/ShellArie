@@ -86,7 +86,7 @@ Item {
 
     Process {
         id: watcherProcess
-        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", Paths.colorsDir]
+        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "--include", Paths.colorsRegex, Paths.colorsDir]
         running: true
         stdout: SplitParser {
             onRead: (data) => {

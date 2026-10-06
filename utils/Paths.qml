@@ -30,6 +30,7 @@ Singleton {
     readonly property string metricdSocket: `${runtime}/metricd.sock`
     readonly property string colorsFile: Quickshell.env("QS_COLORS_FILE") || "/tmp/qs_colors.json"
     readonly property string colorsDir: colorsFile.substring(0, colorsFile.lastIndexOf("/"))
+    readonly property string colorsRegex: "^" + colorsFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"
     readonly property string colorsName: colorsFile.substring(colorsFile.lastIndexOf("/") + 1)
     readonly property string defaultPlayerArt: `file://${Quickshell.shellPath("assets/player_default.png")}`
 

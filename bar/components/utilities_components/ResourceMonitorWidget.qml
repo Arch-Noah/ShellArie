@@ -30,18 +30,50 @@ Rectangle {
     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
     Behavior on offsetY { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
 
+    // CPU / RAM : lecture directe de /proc (pas de processus externe)
+    property var _prevCpu: null
+
+    FileView { id: cpuFile; path: "/proc/stat" }
+    FileView { id: memFile; path: "/proc/meminfo" }
+
+    function updateCpuRam() {
+        cpuFile.reload();
+        memFile.reload();
+        const cpuLine = (cpuFile.text() || "").split("\n")[0].trim().split(/\s+/).slice(1).map(Number);
+        const mem = memFile.text() || "";
+        const next = JSON.parse(JSON.stringify(stats));
+
+        if (cpuLine.length >= 5) {
+            const idle = cpuLine[3] + cpuLine[4];
+            const total = cpuLine.reduce((x, y) => x + y, 0);
+            if (_prevCpu && total > _prevCpu.total)
+                next.cpu.load = 100 * (1 - (idle - _prevCpu.idle) / (total - _prevCpu.total));
+            _prevCpu = { idle: idle, total: total };
+        }
+
+        const memTotal = /MemTotal:\s+(\d+)/.exec(mem);
+        const memAvail = /MemAvailable:\s+(\d+)/.exec(mem);
+        if (memTotal && memAvail) {
+            const t = Number(memTotal[1]);
+            next.ram.total = t / 1048576;
+            next.ram.used = (t - Number(memAvail[1])) / 1048576;
+            next.ram.free = Number(memAvail[1]) / 1048576;
+            next.ram.pct = (t - Number(memAvail[1])) / t;
+        }
+        stats = next;
+    }
+
+    // Disque : change rarement, df est lancé seulement toutes les 30 s
     Process {
-        id: statsProcess
-        command: ["bash", "-c", "cpu_load=$(top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4}'); cpu_clock=$(lscpu | grep 'MHz' | awk '{print $3/1000}' | head -n1 || echo '0'); cpu_temp=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | head -n1 | awk '{print $1/1000}' || echo '0'); ram_tot=$(free -m | grep Mem | awk '{print $2/1024}'); ram_used=$(free -m | grep Mem | awk '{print $3/1024}'); ram_free=$(free -m | grep Mem | awk '{print $4/1024}'); ram_pct=$(free | grep Mem | awk '{print $3/$2}'); rom_tot=$(df -h / | tail -1 | awk '{print $2}'); rom_used=$(df -h / | tail -1 | awk '{print $3}'); rom_free=$(df -h / | tail -1 | awk '{print $4}'); rom_pct=$(df / | tail -1 | awk '{print $3/$2}'); echo \"{\\\"cpu\\\":{\\\"load\\\":${cpu_load:-0},\\\"clock\\\":${cpu_clock:-0},\\\"temp\\\":${cpu_temp:-0}},\\\"ram\\\":{\\\"total\\\":${ram_tot:-0},\\\"used\\\":${ram_used:-0},\\\"free\\\":${ram_free:-0},\\\"pct\\\":${ram_pct:-0}},\\\"rom\\\":{\\\"total\\\":\\\"${rom_tot:-0}\\\",\\\"used\\\":\\\"${rom_used:-0}\\\",\\\"free\\\":\\\"${rom_free:-0}\\\",\\\"pct\\\":${rom_pct:-0}}}\""]
-        running: true
+        id: diskProcess
+        command: ["df", "-P", "/"]
         stdout: StdioCollector {
             onStreamFinished: {
-                if (this.text) {
-                    try {
-                        root.stats = JSON.parse(this.text.trim());
-                    } catch (e) {
-                        console.log("Failed to parse stats:", e);
-                    }
+                const cols = (this.text.trim().split("\n")[1] || "").trim().split(/\s+/);
+                if (cols.length >= 5 && Number(cols[1]) > 0) {
+                    const next = JSON.parse(JSON.stringify(root.stats));
+                    next.rom.pct = Number(cols[2]) / Number(cols[1]);
+                    root.stats = next;
                 }
             }
         }
@@ -51,7 +83,16 @@ Rectangle {
         interval: 2000
         running: true
         repeat: true
-        onTriggered: statsProcess.running = true
+        triggeredOnStart: true
+        onTriggered: root.updateCpuRam()
+    }
+
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: diskProcess.running = true
     }
 
     RowLayout {
