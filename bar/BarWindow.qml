@@ -36,6 +36,10 @@ Scope {
         function toggle(): void {
             root.taskbarEnabled = !root.taskbarEnabled;
         }
+        // Épingle / désépingle une application : qs ipc call taskbar togglePin <appId>
+        function togglePin(appId: string): void {
+            TaskbarPins.toggle(appId);
+        }
     }
 
     Instantiator {

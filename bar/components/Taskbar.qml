@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import qs.services
 import "../commons"
 
 // Seconde barre collée sous la barre principale : icônes des applications ouvertes.
@@ -27,6 +28,11 @@ Item {
     readonly property real notchRadius: 20
     readonly property color fill: Styles.mixAlpha(Styles.background, 0.90)
 
+    function classOf(t) {
+        return (t.wayland?.appId || t.lastIpcObject?.class || "").toString();
+    }
+
+    // Fenêtres de cet écran, triées par adresse
     readonly property var windows: {
         const out = [];
         const list = Hyprland.toplevels.values;
@@ -41,7 +47,27 @@ Item {
         return out;
     }
 
-    readonly property bool shown: windows.length > 0 && !suppressed && (forceShow || onEmptyWorkspace)
+    // Entrées affichées : d'abord les applications épinglées (même fermées),
+    // puis une entrée par fenêtre non épinglée.
+    readonly property var items: {
+        const out = [];
+        const pins = TaskbarPins.pins;
+        const wins = windows;
+        for (const pin of pins) {
+            out.push({
+                cls: pin,
+                pinned: true,
+                windows: wins.filter(t => TaskbarPins.normalize(classOf(t)) === pin)
+            });
+        }
+        for (const t of wins) {
+            if (!TaskbarPins.isPinned(classOf(t)))
+                out.push({ cls: classOf(t), pinned: false, windows: [t] });
+        }
+        return out;
+    }
+
+    readonly property bool shown: items.length > 0 && !suppressed && (forceShow || onEmptyWorkspace)
     property real reveal: shown ? 1 : 0
     Behavior on reveal { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
 
@@ -63,6 +89,21 @@ Item {
             }
         }
         Hyprland.dispatch(`hl.dsp.focus({ window = 'address:0x${String(toplevel.address).replace(/^0x/, '')}' })`);
+    }
+
+    // Clic : lance l'app si elle est fermée, sinon va sur son workspace ;
+    // avec plusieurs fenêtres, passe à la suivante à chaque clic.
+    function activate(entry) {
+        if (entry.windows.length === 0) {
+            const de = DesktopEntries.heuristicLookup(entry.cls);
+            if (de)
+                de.execute();
+            else
+                console.warn("Taskbar: no desktop entry for", entry.cls);
+            return;
+        }
+        const active = entry.windows.indexOf(Hyprland.activeToplevel);
+        focusWindow(entry.windows[(active + 1) % entry.windows.length]);
     }
 
     Component.onCompleted: Hyprland.refreshToplevels()
@@ -131,17 +172,21 @@ Item {
             spacing: 10
 
             Repeater {
-                model: root.windows
+                model: root.items
 
                 delegate: Rectangle {
                     id: item
                     required property var modelData
-                    readonly property string appClass: modelData.wayland?.appId || modelData.lastIpcObject?.class || ""
+                    readonly property string appClass: modelData.cls
+                    readonly property bool running: modelData.windows.length > 0
                     readonly property string iconSource: {
                         const icon = DesktopEntries.heuristicLookup(appClass)?.icon ?? appClass;
                         return Quickshell.iconPath(icon, true);
                     }
-                    readonly property bool isActive: Hyprland.activeToplevel === modelData
+                    readonly property bool isActive: modelData.windows.indexOf(Hyprland.activeToplevel) !== -1
+
+                    // Épinglée mais fermée : atténuée
+                    opacity: running ? 1.0 : 0.55
 
                     Layout.preferredWidth: 30
                     Layout.preferredHeight: 30
@@ -175,7 +220,13 @@ Item {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.focusWindow(item.modelData)
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: mouse => {
+                            if (mouse.button === Qt.RightButton)
+                                TaskbarPins.toggle(item.appClass);
+                            else
+                                root.activate(item.modelData);
+                        }
                     }
                 }
             }
