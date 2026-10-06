@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -227,32 +226,6 @@ RowLayout {
                     hoverEnabled: true
                     onClicked: {
                         dispatchHyprctl(["workspace", modelData.id.toString()]);
-                    }
-                    onEntered: {
-                        overviewPopup.open()
-                    }
-                    onExited: {
-                        overviewPopup.close()
-                    }
-                }
-                
-                // Popover equivalent in QML Controls
-                Popup {
-                    id: overviewPopup
-                    y: wsButton.height + 10
-                    x: (wsButton.width - width) / 2
-                    width: 250
-                    height: 150
-                    padding: 0
-                    closePolicy: Popup.NoAutoClose
-                    background: Rectangle { color: "transparent" }
-                    
-                    Loader {
-                        anchors.fill: parent
-                        active: overviewPopup.opened
-                        sourceComponent: WorkspaceOverview {
-                            workspaceId: modelData.id
-                        }
                     }
                 }
             }
