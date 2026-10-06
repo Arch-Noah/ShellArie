@@ -79,9 +79,18 @@ RowLayout {
         Hyprland.refreshToplevels();
     }
 
-    // Dispatch natif via le socket IPC de Hyprland (pas de processus hyprctl à lancer)
-    function dispatchHyprctl(args) {
-        Hyprland.dispatch(args.join(" "));
+    // Hyprland >= 0.56 : les dispatchers sont des expressions Lua (hl.dsp.*).
+    // Dispatch natif via le socket IPC (pas de processus hyprctl à lancer).
+    function focusWorkspace(id) {
+        Hyprland.dispatch(`hl.dsp.focus({ workspace = '${id}' })`);
+    }
+
+    function toggleSpecial() {
+        Hyprland.dispatch("hl.dsp.workspace.toggle_special('scratchpad')");
+    }
+
+    function moveWindowSilent(workspace, address) {
+        Hyprland.dispatch(`hl.dsp.window.move({ workspace = '${workspace}', window = 'address:${address}', follow = false })`);
     }
 
     // Lock Button
@@ -131,7 +140,7 @@ RowLayout {
             onDropped: function(drop) {
                 var address = drop.source.mimeData["text/plain"];
                 if (address) {
-                    dispatchHyprctl(["movetoworkspacesilent", "special,address:" + address]);
+                    moveWindowSilent("special:scratchpad", address);
                 }
             }
         }
@@ -141,7 +150,7 @@ RowLayout {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                dispatchHyprctl(["togglespecialworkspace"]);
+                toggleSpecial();
             }
         }
     }
@@ -208,7 +217,7 @@ RowLayout {
                     onDropped: function(drop) {
                         var address = drop.source.mimeData["text/plain"];
                         if (address) {
-                            dispatchHyprctl(["movetoworkspacesilent", modelData.id + ",address:" + address]);
+                            workspacesLayout.moveWindowSilent(modelData.id, address);
                         }
                     }
                 }
@@ -218,7 +227,7 @@ RowLayout {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
-                        dispatchHyprctl(["workspace", modelData.id.toString()]);
+                        workspacesLayout.focusWorkspace(modelData.id);
                     }
                 }
             }
