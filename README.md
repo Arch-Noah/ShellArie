@@ -2,6 +2,16 @@
 
 Shell [Quickshell](https://quickshell.org) pour **Hyprland** (Arch Linux) : barre principale, dashboard déroulant, notifications et seconde barre d'applications.
 
+
+![ShellArie sur un fond de forêt](docs/screenshots/screenshot-1.webp)
+
+<p>
+  <img src="docs/screenshots/screenshot-2.webp" width="49%" alt="ShellArie, thème sombre monochrome">
+  <img src="docs/screenshots/screenshot-3.webp" width="49%" alt="ShellArie, thème chaud">
+</p>
+
+La barre principale en haut, et la seconde barre d'applications collée en dessous. Les couleurs suivent le fond d'écran.
+
 ## Fonctionnalités
 
 - **Barre principale** : workspaces (clic pour y aller, glisser-déposer de fenêtres), horloge, lecteur média, débit réseau, Wi-Fi / Bluetooth / Ethernet, batterie, volume, luminosité, ressources (CPU / RAM / disque), Tailscale.
