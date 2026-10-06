@@ -43,7 +43,7 @@ External scripts used when present in `~/.config/hypr/scripts/`:
 ## Installation
 
 ```bash
-git clone https://github.com/Arch-Noah/ShellArie.git ~/.config/quickshell/ShellArie
+git clone git@github.com:Arch-Noah/ShellArie.git ~/.config/quickshell/ShellArie
 cd ~/.config/quickshell/ShellArie
 ./install.sh --check   # check dependencies without changing anything
 ./install.sh           # install missing packages, create the state directory
