@@ -222,18 +222,6 @@ Item {
                         smooth: true
                     }
 
-                    // Point sous l'icône : l'application est ouverte
-                    Rectangle {
-                        visible: item.running
-                        width: 4
-                        height: 4
-                        radius: 2
-                        color: Styles.foreground
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 1
-                    }
-
                     MouseArea {
                         id: ma
                         anchors.fill: parent
