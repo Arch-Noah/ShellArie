@@ -180,7 +180,10 @@ Item {
                     readonly property string appClass: modelData.cls
                     readonly property bool running: modelData.windows.length > 0
                     readonly property string iconSource: {
-                        const icon = DesktopEntries.heuristicLookup(appClass)?.icon ?? appClass;
+                        // Dépendance réactive : la base des entrées .desktop se charge de façon
+                        // asynchrone au démarrage, il faut recalculer l'icône quand elle arrive.
+                        const entries = DesktopEntries.applications.values;
+                        const icon = (entries.length > 0 ? DesktopEntries.heuristicLookup(appClass)?.icon : null) ?? appClass;
                         return Quickshell.iconPath(icon, true);
                     }
                     readonly property bool isActive: modelData.windows.indexOf(Hyprland.activeToplevel) !== -1
