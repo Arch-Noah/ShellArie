@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.utils
 
 Item {
     id: root
@@ -57,10 +58,10 @@ Item {
     // ── JSON bridge ───────────────────────────────────────────────
     property string rawJson: ""
 
-    // Lecteur : cat /tmp/qs_colors.json
+    // Lecteur : cat Paths.colorsFile
     Process {
         id: themeReader
-        command: ["cat", "/tmp/qs_colors.json"]
+        command: ["cat", Paths.colorsFile]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -116,11 +117,11 @@ Item {
     // Watcher événementiel (inotifywait) — remplace l'ancien Timer polling
     Process {
         id: themeWatcher
-        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "/tmp/"]
+        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", Paths.colorsDir]
         running: true
         stdout: SplitParser {
             onRead: (data) => {
-                if (data.indexOf("qs_colors.json") !== -1) {
+                if (data.indexOf(Paths.colorsName) !== -1) {
                     themeReader.running = false;
                     themeReader.running = true;
                 }

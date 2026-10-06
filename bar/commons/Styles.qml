@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell.Io
+import qs.utils
 
 Item {
     id: root
@@ -55,7 +56,7 @@ Item {
 
     Process {
         id: readerProcess
-        command: ["cat", "/tmp/qs_colors.json"]
+        command: ["cat", Paths.colorsFile]
         stdout: SplitParser {
             property string buffer: ""
             onRead: (data) => {
@@ -85,11 +86,11 @@ Item {
 
     Process {
         id: watcherProcess
-        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", "/tmp/"]
+        command: ["inotifywait", "-q", "-m", "-e", "close_write,moved_to,create", Paths.colorsDir]
         running: true
         stdout: SplitParser {
             onRead: (data) => {
-                if (data.indexOf("qs_colors.json") !== -1) {
+                if (data.indexOf(Paths.colorsName) !== -1) {
                     debounceTimer.restart();
                 }
             }

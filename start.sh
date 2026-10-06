@@ -20,4 +20,4 @@ fi
 export QT_NO_XDG_DESKTOP_PORTAL=1
 
 # Launch the unified ArchShell process as a detached daemon
-qs -d -p "$HOME/.config/quickshell/ArchShell/shell.qml"
+qs -d -p "$(dirname "$(readlink -f "$0")")/shell.qml"

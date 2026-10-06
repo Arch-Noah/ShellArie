@@ -7,6 +7,7 @@ import Quickshell.Services.Mpris
 import Quickshell.Widgets
 import qs.services
 import "../../commons"
+import qs.utils
 
 Item {
     id: root
@@ -60,7 +61,7 @@ Item {
     
     property string coverPath: {
         if (!root.activePlayer || !root.activePlayer.trackArtUrl || root.activePlayer.trackArtUrl === "") {
-            return "file:///home/nnoah/.config/ags/assets/player/player_default.png";
+            return Paths.defaultPlayerArt;
         }
         var url = root.activePlayer.trackArtUrl;
         if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("file://")) {

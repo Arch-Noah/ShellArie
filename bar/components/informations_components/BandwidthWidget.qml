@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import "../../commons"
+import qs.utils
 
 Rectangle {
     id: root
@@ -19,7 +20,7 @@ Rectangle {
     // Background daemon process reading metricd socket
     Process {
         id: metricdProc
-        command: ["nc", "-U", "/run/user/1000/metricd.sock"]
+        command: ["nc", "-U", Paths.metricdSocket]
         running: true
         
         // Restart if it dies (e.g. if metricd is restarted)

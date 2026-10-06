@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Services.UPower
 import Quickshell.Io
 import "../../commons"
+import qs.utils
 
 Rectangle {
     id: root
@@ -83,7 +84,7 @@ Rectangle {
     
     Process {
         id: clickProcess
-        command: ["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle battery"]
+        command: [Paths.qsManager, "toggle", "battery"]
     }
     
     MouseArea {

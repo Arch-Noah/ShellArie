@@ -6,6 +6,7 @@ import Quickshell.Services.UPower
 import Quickshell.Io
 import "../commons"
 import "utilities_components"
+import qs.utils
 
 RowLayout {
     id: utilitiesLayout
@@ -39,7 +40,7 @@ RowLayout {
                 }
                 
                 labelText: ssidText
-                onClickCommand: "~/.config/hypr/scripts/qs_manager.sh toggle network wifi"
+                onClickCommand: "\"" + Paths.qsManager + "\" toggle network wifi"
                 
                 Process {
                     id: wifiProcess
@@ -77,7 +78,7 @@ RowLayout {
                 id: btRevealer
                 iconText: btText === "Off" || btText === "Disconnected" ? "󰂲" : "󰂱"
                 labelText: btText === "Off" ? "Bluetooth Off" : btText
-                onClickCommand: "~/.config/hypr/scripts/qs_manager.sh toggle network bt"
+                onClickCommand: "\"" + Paths.qsManager + "\" toggle network bt"
                 
                 property string btText: "Checking..."
                 
@@ -104,7 +105,7 @@ RowLayout {
                 id: ethRevealer
                 iconText: ethText === "Disconnected" ? "󰈂" : "󰈁"
                 labelText: ethText
-                onClickCommand: "~/.config/hypr/scripts/qs_manager.sh toggle network eth"
+                onClickCommand: "\"" + Paths.qsManager + "\" toggle network eth"
                 visible: ethText !== "Disconnected"
                 
                 property string ethText: "Disconnected"
