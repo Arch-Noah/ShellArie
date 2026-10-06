@@ -11,6 +11,13 @@ A [Quickshell](https://quickshell.org) shell for **Hyprland** (Arch Linux): main
 
 The main bar sits at the top and the application bar is attached right below it. Colors follow the wallpaper.
 
+The dashboard drops down from the bar: overview, media player with synced lyrics, performance and weather.
+
+<p>
+  <img src="docs/screenshots/screenshot-5.webp" width="49%" alt="Dashboard overview: weather, calendar, resources and media">
+  <img src="docs/screenshots/screenshot-4.webp" width="49%" alt="Dashboard media tab with synced lyrics">
+</p>
+
 ## Features
 
 - **Main bar**: workspaces (click to switch, drag and drop windows between them), clock, media player, network throughput, Wi-Fi / Bluetooth / Ethernet, battery, volume, brightness, resources (CPU / RAM / disk), Tailscale.
