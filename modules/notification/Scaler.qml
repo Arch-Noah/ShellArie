@@ -32,7 +32,9 @@ Item {
                             root.uiScale = parsed.uiScale;
                         }
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.warn("Scaler: invalid settings.json:", e);
+                }
             }
         }
     }

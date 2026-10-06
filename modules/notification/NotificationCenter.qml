@@ -94,20 +94,11 @@ Item {
         return collapsedGroups[groupName] === true;
     }
 
-    Process {
-        id: dndInit
-        running: true
-        command: ["bash", "-c", "cat " + paths.getCacheDir("dnd") + "/state 2>/dev/null || echo '0'"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                window.dndEnabled = (this.text.trim() === "1");
-            }
-        }
-    }
+    readonly property string dndStateFile: paths.getCacheDir("dnd") + "/state"
 
     Process {
         id: dndPoller
-        command: ["bash", "-c", "cat '" + paths.getCacheDir("dnd") + "/state' 2>/dev/null || echo '0'"]
+        command: ["sh", "-c", "cat \"$1\" 2>/dev/null || echo 0", "_", window.dndStateFile]
         stdout: StdioCollector {
             onStreamFinished: window.dndEnabled = (this.text.trim() === "1")
         }
@@ -250,7 +241,7 @@ Item {
                             anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 window.dndEnabled = !window.dndEnabled;
-                                Quickshell.execDetached(["sh", "-c", "echo '" + (window.dndEnabled ? "1" : "0") + "' > " + paths.getCacheDir("dnd") + "/state"]);
+                                Quickshell.execDetached(["sh", "-c", "printf %s \"$1\" > \"$2\"", "_", window.dndEnabled ? "1" : "0", window.dndStateFile]);
                             }
                         }
                     }
