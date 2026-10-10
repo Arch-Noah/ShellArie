@@ -26,7 +26,7 @@ The dashboard drops down from the bar: overview, media player with synced lyrics
 - **Application bar** attached under the main bar, showing an icon for each open application:
   - click: jump to the application's workspace (launches it if it is closed);
   - right click: pin / unpin the application (kept across reboots);
-  - shown with `SUPER + Tab`, automatically while rofi is open, and when the active workspace is empty.
+  - shown with `SUPER + Tab`, automatically while rofi or wofi is open, and when the active workspace is empty.
 
 ## Requirements
 

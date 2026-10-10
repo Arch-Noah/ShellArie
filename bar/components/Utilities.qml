@@ -25,6 +25,8 @@ RowLayout {
             anchors.fill: parent
             spacing: 0
             
+            HypridleWidget {}
+
             CustomRevealer {
                 id: wifiRevealer
                 

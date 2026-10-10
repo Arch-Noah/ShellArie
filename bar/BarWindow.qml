@@ -14,15 +14,15 @@ Scope {
 
     property bool isBarLocked: true
     // Seconde barre (icônes des applications) : masquée par défaut, bascule via
-    // `qs ipc call taskbar toggle`, et affichée automatiquement tant que rofi est ouvert.
+    // `qs ipc call taskbar toggle`, et affichée automatiquement tant que rofi ou wofi est ouvert.
     property bool taskbarEnabled: false
     property bool rofiOpen: false
 
     Connections {
         target: Hyprland
-        // rofi est une layer-surface (namespace "rofi") : openlayer/closelayer
+        // rofi / wofi sont des layer-surfaces (namespace "rofi" / "wofi") : openlayer/closelayer
         function onRawEvent(event) {
-            if (event.data !== "rofi")
+            if (event.data !== "rofi" && event.data !== "wofi")
                 return;
             if (event.name === "openlayer")
                 root.rofiOpen = true;
