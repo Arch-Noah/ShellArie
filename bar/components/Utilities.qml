@@ -100,7 +100,9 @@ RowLayout {
                 }
             }
             
-            BatteryWidget {}
+            BatteryWidget {
+                screenState: utilitiesLayout.screenState
+            }
             
             VolumeWidget {
                 screenState: utilitiesLayout.screenState

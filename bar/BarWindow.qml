@@ -9,6 +9,7 @@ import "../modules/dashboard" as Dashboard
 import "../modules/wifi" as Wifi
 import "../modules/bluetooth" as Bt
 import "../modules/sound" as Snd
+import "../modules/battery" as Bat
 import "commons"
 import "components"
 
@@ -100,7 +101,7 @@ Scope {
                     right: Styles.globalMargin
                 }
 
-                implicitHeight: Math.max(dashWrapper.implicitHeight + 60, wifiWrapper.implicitHeight + 60, btWrapper.implicitHeight + 60, sndWrapper.implicitHeight + 60, 850)
+                implicitHeight: Math.max(dashWrapper.implicitHeight + 60, wifiWrapper.implicitHeight + 60, btWrapper.implicitHeight + 60, sndWrapper.implicitHeight + 60, batWrapper.implicitHeight + 60, 850)
                 
                 exclusiveZone: screenScope.isBarVisible ? 40 : 0
 
@@ -112,11 +113,12 @@ Scope {
                     id: inputMask
                     x: 0; y: 0
                     width: barWindow.width
-                    height: (dashWrapper.visible || wifiWrapper.visible || btWrapper.visible || sndWrapper.visible)
+                    height: (dashWrapper.visible || wifiWrapper.visible || btWrapper.visible || sndWrapper.visible || batWrapper.visible)
                         ? (barRect.height + 10 + Math.max(dashWrapper.visible ? dashWrapper.implicitHeight : 0,
                                                           wifiWrapper.visible ? wifiWrapper.implicitHeight : 0,
                                                           btWrapper.visible ? btWrapper.implicitHeight : 0,
-                                                          sndWrapper.visible ? sndWrapper.implicitHeight : 0))
+                                                          sndWrapper.visible ? sndWrapper.implicitHeight : 0,
+                                                          batWrapper.visible ? batWrapper.implicitHeight : 0))
                         : barRect.height
                     // Zone cliquable de la seconde barre (union avec le rectangle ci-dessus)
                     regions: [
@@ -130,13 +132,14 @@ Scope {
                 }
 
                 HyprlandFocusGrab {
-                    active: dashWrapper.shouldBeActive || wifiWrapper.shouldBeActive || btWrapper.shouldBeActive || sndWrapper.shouldBeActive
+                    active: dashWrapper.shouldBeActive || wifiWrapper.shouldBeActive || btWrapper.shouldBeActive || sndWrapper.shouldBeActive || batWrapper.shouldBeActive
                     windows: [barWindow]
                     onCleared: {
                         dashWrapper.screenState.dashboard = false;
                         wifiWrapper.screenState.wifi = false;
                         btWrapper.screenState.bluetooth = false;
                         sndWrapper.screenState.audio = false;
+                        batWrapper.screenState.battery = false;
                     }
                 }
 
@@ -176,11 +179,19 @@ Scope {
                         z: -1 // Derrière la barre, comme le dashboard
                     }
 
+                    Bat.Wrapper {
+                        id: batWrapper
+                        screenState: ShellState.forScreen(modelData)
+                        anchors.top: barRect.bottom
+                        anchors.right: parent.right
+                        z: -1 // Derrière la barre, comme le dashboard
+                    }
+
                     Taskbar {
                         id: taskbar
                         screen: modelData
                         barHeight: barRect.height
-                        suppressed: dashWrapper.visible || wifiWrapper.visible || btWrapper.visible || sndWrapper.visible
+                        suppressed: dashWrapper.visible || wifiWrapper.visible || btWrapper.visible || sndWrapper.visible || batWrapper.visible
                         forceShow: root.taskbarEnabled || root.rofiOpen
                         anchors.top: barRect.bottom
                         anchors.horizontalCenter: parent.horizontalCenter

@@ -63,6 +63,14 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "battery"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.battery = !state.battery;
+        }
+    }
+
     Bar.BarWindow {
         id: bar
     }

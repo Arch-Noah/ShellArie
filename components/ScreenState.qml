@@ -1,6 +1,8 @@
 import Quickshell
 
 PersistentProperties {
+    id: root
+
     required property ShellScreen modelData
 
     // Drawer visibilities
@@ -12,33 +14,33 @@ PersistentProperties {
     property bool wifi
     property bool bluetooth
     property bool audio
+    property bool battery
     // Centre de notifications (fenêtre détachée, indépendante des panneaux de la barre)
     property bool notifCenter
     property real notifCenterClosedAt
     property bool utilities
     property bool sidebar
 
-    // Un seul des panneaux dashboard / wifi / bluetooth / audio est ouvert à la fois
-    onDashboardChanged: if (dashboard) {
-        wifi = false;
-        bluetooth = false;
-        audio = false;
+    // Un seul des panneaux de la barre est ouvert à la fois
+    readonly property var barPanels: ["dashboard", "wifi", "bluetooth", "audio", "battery"]
+
+    function closeOthers(name: string): void {
+        for (const n of barPanels) {
+            if (n !== name && root[n])
+                root[n] = false;
+        }
     }
-    onWifiChanged: if (wifi) {
-        dashboard = false;
-        bluetooth = false;
-        audio = false;
-    }
-    onBluetoothChanged: if (bluetooth) {
-        dashboard = false;
-        wifi = false;
-        audio = false;
-    }
-    onAudioChanged: if (audio) {
-        dashboard = false;
-        wifi = false;
-        bluetooth = false;
-    }
+
+    onDashboardChanged: if (dashboard)
+        closeOthers("dashboard")
+    onWifiChanged: if (wifi)
+        closeOthers("wifi")
+    onBluetoothChanged: if (bluetooth)
+        closeOthers("bluetooth")
+    onAudioChanged: if (audio)
+        closeOthers("audio")
+    onBatteryChanged: if (battery)
+        closeOthers("battery")
 
     // Dashboard state
     property int dashboardTab

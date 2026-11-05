@@ -12,6 +12,9 @@ Rectangle {
     // Check if battery exists
     visible: UPower.displayDevice !== null
     
+    // ScreenState de l'écran : un clic sur le widget ouvre le panneau Batterie
+    property var screenState
+
     property var device: UPower.displayDevice
     property real percentage: device ? device.percentage : 0
     property int percentInt: Math.floor(percentage * 100)
@@ -82,15 +85,13 @@ Rectangle {
         }
     }
     
-    Process {
-        id: clickProcess
-        command: [Paths.qsManager, "toggle", "battery"]
-    }
-    
     MouseArea {
         id: ma
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: clickProcess.running = true
+        onClicked: {
+            if (root.screenState)
+                root.screenState.battery = !root.screenState.battery;
+        }
     }
 }
