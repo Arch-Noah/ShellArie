@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -60,7 +61,7 @@ Item {
                 radius: 15
                 color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
-                WifiIcon {
+                PanelIcon {
                     anchors.centerIn: parent
                     text: root.signalIcon(root.network.strength)
                     size: 15
@@ -71,7 +72,7 @@ Item {
                 Layout.fillWidth: true
                 spacing: 1
 
-                WifiText {
+                PanelText {
                     text: root.network.ssid
                     size: 10
                     weight: Font.Medium
@@ -79,7 +80,7 @@ Item {
                     Layout.fillWidth: true
                 }
 
-                WifiText {
+                PanelText {
                     text: (root.network.isSecure ? root.network.security : qsTr("Ouvert")) + " · " + Math.round(root.network.strength) + " %" + (root.known ? " · " + qsTr("Enregistré") : (root.network.isSecure ? " · " + qsTr("Mot de passe requis") : ""))
                     size: 8
                     color: Colours.palette.m3onSurfaceVariant
@@ -88,14 +89,14 @@ Item {
                 }
             }
 
-            WifiText {
+            PanelText {
                 visible: root.connectingThis
                 text: qsTr("Connexion…")
                 size: 8.5
                 color: Colours.palette.m3primary
             }
 
-            WifiButton {
+            PanelButton {
                 visible: root.network.isSecure && !root.connectingThis
                 icon: "key"
                 tint: Colours.palette.m3onSurfaceVariant
@@ -104,7 +105,7 @@ Item {
             }
         }
 
-        WifiText {
+        PanelText {
             visible: root.errorText !== ""
             text: root.errorText
             size: 8.5

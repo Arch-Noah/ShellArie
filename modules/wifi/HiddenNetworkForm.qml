@@ -1,3 +1,4 @@
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -31,7 +32,7 @@ ColumnLayout {
         });
     }
 
-    WifiCard {
+    PanelCard {
         Layout.fillWidth: true
 
         ColumnLayout {
@@ -49,7 +50,7 @@ ColumnLayout {
                     radius: 15
                     color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
-                    WifiIcon {
+                    PanelIcon {
                         anchors.centerIn: parent
                         text: "visibility_off"
                         size: 15
@@ -60,13 +61,13 @@ ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 1
 
-                    WifiText {
+                    PanelText {
                         text: qsTr("Réseau caché")
                         size: 10
                         weight: Font.Medium
                     }
 
-                    WifiText {
+                    PanelText {
                         text: qsTr("Saisissez le nom exact du réseau")
                         size: 8
                         color: Colours.palette.m3onSurfaceVariant
@@ -76,7 +77,7 @@ ColumnLayout {
                 }
             }
 
-            WifiField {
+            PanelField {
                 id: ssidField
                 Layout.fillWidth: true
                 icon: "wifi"
@@ -88,18 +89,18 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 8
 
-                WifiText {
+                PanelText {
                     text: qsTr("Réseau sécurisé (WPA/WPA2)")
                     Layout.fillWidth: true
                 }
 
-                CompactSwitch {
+                PanelSwitch {
                     id: secured
                     checked: true
                 }
             }
 
-            WifiField {
+            PanelField {
                 id: passwordField
                 visible: secured.checked
                 Layout.fillWidth: true
@@ -109,7 +110,7 @@ ColumnLayout {
                 onAccepted: root.submit()
             }
 
-            WifiText {
+            PanelText {
                 visible: root.errorText !== ""
                 text: root.errorText
                 size: 8.5
@@ -118,7 +119,7 @@ ColumnLayout {
                 Layout.fillWidth: true
             }
 
-            WifiButton {
+            PanelButton {
                 Layout.fillWidth: true
                 text: qsTr("Se connecter")
                 icon: "wifi"

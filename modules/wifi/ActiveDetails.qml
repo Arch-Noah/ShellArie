@@ -1,3 +1,4 @@
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -83,14 +84,14 @@ ColumnLayout {
         Layout.bottomMargin: 18
         spacing: 8
 
-        WifiIcon {
+        PanelIcon {
             text: "wifi_off"
             size: 26
             color: Colours.palette.m3onSurfaceVariant
             Layout.alignment: Qt.AlignHCenter
         }
 
-        WifiText {
+        PanelText {
             text: qsTr("Aucun réseau connecté")
             color: Colours.palette.m3onSurfaceVariant
             Layout.alignment: Qt.AlignHCenter
@@ -129,7 +130,7 @@ ColumnLayout {
                     radius: 22
                     color: Qt.alpha(Colours.palette.m3primary, 0.2)
 
-                    WifiIcon {
+                    PanelIcon {
                         anchors.centerIn: parent
                         text: root.signalIcon(root.strength)
                         size: 22
@@ -141,7 +142,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 2
 
-                    WifiText {
+                    PanelText {
                         text: root.network?.ssid ?? ""
                         size: 12
                         weight: Font.DemiBold
@@ -159,7 +160,7 @@ ColumnLayout {
                             color: Colours.palette.m3primary
                         }
 
-                        WifiText {
+                        PanelText {
                             text: root.ssidCopied ? qsTr("Nom copié") : qsTr("Connecté")
                             size: 8.5
                             color: Colours.palette.m3primary
@@ -184,7 +185,7 @@ ColumnLayout {
                         radius: height / 2
                         color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
-                        WifiText {
+                        PanelText {
                             id: chip
                             anchors.centerIn: parent
                             text: parent.modelData
@@ -197,7 +198,7 @@ ColumnLayout {
     }
 
     // --- Informations de connexion (un clic copie la valeur) ---
-    WifiCard {
+    PanelCard {
         visible: !!root.network
         Layout.fillWidth: true
 
@@ -239,11 +240,11 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 0
 
-                WifiDivider {
+                PanelDivider {
                     visible: line.index > 0
                 }
 
-                InfoRow {
+                PanelInfoRow {
                     Layout.fillWidth: true
                     icon: line.modelData.icon
                     label: line.modelData.label
@@ -254,7 +255,7 @@ ColumnLayout {
     }
 
     // --- Déconnexion ---
-    WifiButton {
+    PanelButton {
         visible: !!root.network
         Layout.fillWidth: true
         text: qsTr("Se déconnecter")

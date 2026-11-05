@@ -1,3 +1,4 @@
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -45,7 +46,7 @@ ColumnLayout {
             radius: 15
             color: root.isActive ? Qt.alpha(Colours.palette.m3primary, 0.2) : Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
-            WifiIcon {
+            PanelIcon {
                 anchors.centerIn: parent
                 text: root.isActive ? "wifi" : "bookmark"
                 size: 15
@@ -57,7 +58,7 @@ ColumnLayout {
             Layout.fillWidth: true
             spacing: 1
 
-            WifiText {
+            PanelText {
                 text: root.ssid
                 size: 10
                 weight: Font.Medium
@@ -65,7 +66,7 @@ ColumnLayout {
                 Layout.fillWidth: true
             }
 
-            WifiText {
+            PanelText {
                 text: root.isActive ? qsTr("Connecté") : (root.autoconnect ? qsTr("Connexion automatique") : qsTr("Connexion manuelle"))
                 size: 8
                 color: root.isActive ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
@@ -74,7 +75,7 @@ ColumnLayout {
             }
         }
 
-        CompactSwitch {
+        PanelSwitch {
             visible: !root.confirmingForget
             checked: root.autoconnect
             onToggled: {
@@ -94,14 +95,14 @@ ColumnLayout {
             }
         }
 
-        WifiButton {
+        PanelButton {
             visible: !root.confirmingForget
             icon: "delete"
             tint: Colours.palette.m3error
             onClicked: root.confirmingForget = true
         }
 
-        WifiButton {
+        PanelButton {
             visible: root.confirmingForget
             text: qsTr("Oublier")
             tint: Colours.palette.m3error
@@ -121,7 +122,7 @@ ColumnLayout {
             }
         }
 
-        WifiButton {
+        PanelButton {
             visible: root.confirmingForget
             text: qsTr("Annuler")
             tint: Colours.palette.m3onSurfaceVariant
@@ -131,7 +132,7 @@ ColumnLayout {
         }
     }
 
-    WifiText {
+    PanelText {
         visible: root.errorText !== ""
         text: root.errorText
         size: 8.5

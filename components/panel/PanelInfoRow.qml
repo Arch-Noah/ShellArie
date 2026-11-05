@@ -48,20 +48,20 @@ Item {
         anchors.bottomMargin: 7
         spacing: 10
 
-        WifiIcon {
+        PanelIcon {
             text: root.copied ? "check" : root.icon
             size: 14
             color: root.copied ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
             Layout.alignment: Qt.AlignVCenter
         }
 
-        WifiText {
+        PanelText {
             text: root.copied ? qsTr("Copié") : root.label
             color: root.copied ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
             Layout.alignment: Qt.AlignVCenter
         }
 
-        WifiText {
+        PanelText {
             text: root.value
             weight: Font.Medium
             Layout.fillWidth: true

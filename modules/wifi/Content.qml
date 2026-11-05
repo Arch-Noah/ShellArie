@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -64,7 +65,7 @@ Item {
             Layout.fillWidth: true
             spacing: 8
 
-            WifiText {
+            PanelText {
                 text: qsTr("Wi-Fi")
                 size: 11
                 weight: Font.Medium
@@ -80,13 +81,13 @@ Item {
                 onClicked: Nmcli.rescanWifi()
             }
 
-            CompactSwitch {
+            PanelSwitch {
                 checked: Nmcli.wifiEnabled
                 onToggled: Nmcli.toggleWifi(null)
             }
         }
 
-        WifiText {
+        PanelText {
             visible: !Nmcli.wifiEnabled
             text: qsTr("Wi-Fi désactivé")
             color: Colours.palette.m3onSurfaceVariant
@@ -94,7 +95,7 @@ Item {
         }
 
         // --- Onglets ---
-        WifiTabs {
+        PanelTabs {
             visible: Nmcli.wifiEnabled
             Layout.fillWidth: true
             icons: root.tabIcons

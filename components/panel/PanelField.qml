@@ -36,7 +36,7 @@ Rectangle {
         anchors.rightMargin: 12
         spacing: 8
 
-        WifiIcon {
+        PanelIcon {
             visible: root.icon !== ""
             text: root.icon
             size: 14
@@ -57,7 +57,7 @@ Rectangle {
             clip: true
             onAccepted: root.accepted()
 
-            WifiText {
+            PanelText {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: input.text.length === 0 && input.preeditText.length === 0
                 text: root.placeholderText

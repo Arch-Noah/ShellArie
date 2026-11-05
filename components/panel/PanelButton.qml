@@ -35,14 +35,14 @@ Rectangle {
         anchors.centerIn: parent
         spacing: 7
 
-        WifiIcon {
+        PanelIcon {
             visible: root.icon !== ""
             text: root.icon
             size: 15
             color: root.filled ? root.onTint : root.tint
         }
 
-        WifiText {
+        PanelText {
             visible: root.text !== ""
             text: root.text
             size: root.textSize

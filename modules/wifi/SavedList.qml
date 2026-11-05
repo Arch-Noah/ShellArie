@@ -1,3 +1,4 @@
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import qs.services
@@ -8,7 +9,7 @@ ColumnLayout {
 
     spacing: 0
 
-    WifiCard {
+    PanelCard {
         Layout.fillWidth: true
 
         ColumnLayout {
@@ -17,14 +18,14 @@ ColumnLayout {
             Layout.margins: 18
             spacing: 8
 
-            WifiIcon {
+            PanelIcon {
                 text: "bookmark"
                 size: 22
                 color: Colours.palette.m3onSurfaceVariant
                 Layout.alignment: Qt.AlignHCenter
             }
 
-            WifiText {
+            PanelText {
                 text: qsTr("Aucun réseau enregistré")
                 color: Colours.palette.m3onSurfaceVariant
                 Layout.alignment: Qt.AlignHCenter
@@ -43,7 +44,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 0
 
-                WifiDivider {
+                PanelDivider {
                     visible: item.index > 0
                 }
 

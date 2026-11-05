@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -44,10 +45,10 @@ ColumnLayout {
 
     spacing: 0
 
-    WifiCard {
+    PanelCard {
         Layout.fillWidth: true
 
-        WifiText {
+        PanelText {
             visible: root.available.length === 0
             text: qsTr("Aucun réseau détecté")
             color: Colours.palette.m3onSurfaceVariant
@@ -82,7 +83,7 @@ ColumnLayout {
                     });
                 }
 
-                WifiDivider {
+                PanelDivider {
                     visible: item.index > 0
                 }
 

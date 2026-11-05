@@ -1,3 +1,4 @@
+import qs.components.panel
 import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
@@ -20,7 +21,7 @@ RowLayout {
         field.focusField();
     }
 
-    WifiField {
+    PanelField {
         id: field
         Layout.fillWidth: true
         icon: "key"
@@ -30,7 +31,7 @@ RowLayout {
             root.submitted(text)
     }
 
-    WifiButton {
+    PanelButton {
         icon: "arrow_forward"
         filled: true
         disabled: field.text.length === 0 || Nmcli.connecting

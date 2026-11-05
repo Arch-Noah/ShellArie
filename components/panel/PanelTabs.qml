@@ -66,7 +66,7 @@ Item {
                         onClicked: root.currentIndex = tab.index
                     }
 
-                    WifiIcon {
+                    PanelIcon {
                         anchors.centerIn: parent
                         text: tab.modelData
                         size: 14
