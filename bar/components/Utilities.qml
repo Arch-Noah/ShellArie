@@ -54,7 +54,10 @@ RowLayout {
                 id: btRevealer
                 iconText: btText === "Off" || btText === "Disconnected" ? "󰂲" : "󰂱"
                 labelText: btText === "Off" ? "Bluetooth Off" : btText
-                onClickCommand: "\"" + Paths.qsManager + "\" toggle network bt"
+                onClicked: {
+                    if (utilitiesLayout.screenState)
+                        utilitiesLayout.screenState.bluetooth = !utilitiesLayout.screenState.bluetooth;
+                }
                 
                 readonly property var btAdapter: Bluetooth.defaultAdapter
                 readonly property var btDevice: Bluetooth.devices.values.find(d => d.connected) ?? null

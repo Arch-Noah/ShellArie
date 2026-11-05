@@ -46,6 +46,14 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "bluetooth"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.bluetooth = !state.bluetooth;
+        }
+    }
+
     Bar.BarWindow {
         id: bar
     }

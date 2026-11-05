@@ -77,25 +77,11 @@ ColumnLayout {
     }
 
     // --- Aucun réseau ---
-    ColumnLayout {
+    PanelEmpty {
         visible: !root.network
-        Layout.fillWidth: true
-        Layout.topMargin: 18
-        Layout.bottomMargin: 18
-        spacing: 8
-
-        PanelIcon {
-            text: "wifi_off"
-            size: 26
-            color: Colours.palette.m3onSurfaceVariant
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        PanelText {
-            text: qsTr("Aucun réseau connecté")
-            color: Colours.palette.m3onSurfaceVariant
-            Layout.alignment: Qt.AlignHCenter
-        }
+        icon: "wifi_off"
+        text: qsTr("Aucun réseau connecté")
+        iconSize: 26
     }
 
     // --- Carte du réseau actif ---

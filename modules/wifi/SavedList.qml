@@ -12,24 +12,10 @@ ColumnLayout {
     PanelCard {
         Layout.fillWidth: true
 
-        ColumnLayout {
+        PanelEmpty {
             visible: Nmcli.savedConnectionSsids.length === 0
-            Layout.fillWidth: true
-            Layout.margins: 18
-            spacing: 8
-
-            PanelIcon {
-                text: "bookmark"
-                size: 22
-                color: Colours.palette.m3onSurfaceVariant
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            PanelText {
-                text: qsTr("Aucun réseau enregistré")
-                color: Colours.palette.m3onSurfaceVariant
-                Layout.alignment: Qt.AlignHCenter
-            }
+            icon: "bookmark"
+            text: qsTr("Aucun réseau enregistré")
         }
 
         Repeater {

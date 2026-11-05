@@ -48,13 +48,10 @@ ColumnLayout {
     PanelCard {
         Layout.fillWidth: true
 
-        PanelText {
+        PanelEmpty {
             visible: root.available.length === 0
+            icon: "wifi_find"
             text: qsTr("Aucun réseau détecté")
-            color: Colours.palette.m3onSurfaceVariant
-            Layout.fillWidth: true
-            Layout.margins: 14
-            horizontalAlignment: Text.AlignHCenter
         }
 
         Repeater {
