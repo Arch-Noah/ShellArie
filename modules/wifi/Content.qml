@@ -48,8 +48,18 @@ Item {
     implicitWidth: 420
     implicitHeight: Math.min(column.implicitHeight + margin * 2, maxContentHeight)
 
+    // Les détails IP/DNS/MAC suivent le réseau actif
+    Connections {
+        target: Nmcli
+
+        function onActiveChanged(): void {
+            Nmcli.getWirelessDeviceDetails("", null);
+        }
+    }
+
     Component.onCompleted: {
         availableRawChanged();
+        Nmcli.getWirelessDeviceDetails("", null);
         Nmcli.rescanWifi();
         Nmcli.loadSavedConnections(null);
     }
@@ -98,6 +108,17 @@ Item {
                 text: qsTr("Wi-Fi désactivé")
                 color: Colours.palette.m3onSurfaceVariant
                 Layout.fillWidth: true
+            }
+
+            // --- Réseau actif ---
+            Loader {
+                active: Nmcli.wifiEnabled && !!Nmcli.active
+                visible: active
+                Layout.fillWidth: true
+
+                sourceComponent: ActiveDetails {
+                    network: Nmcli.active
+                }
             }
 
             // --- Réseaux disponibles ---
