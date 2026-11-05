@@ -142,25 +142,6 @@ Item {
         return "battery_alert";
     }
 
-    // --- Cercles flous d'ambiance en fond ---
-    Rectangle {
-        width: 240
-        height: 240
-        radius: 120
-        x: -90
-        y: root.height * 0.38
-        color: Qt.alpha(Colours.palette.m3secondary, 0.07)
-    }
-
-    Rectangle {
-        width: 280
-        height: 280
-        radius: 140
-        x: root.width * 0.35
-        y: root.height * 0.62
-        color: Qt.alpha(root.ringColor, 0.07)
-    }
-
     ColumnLayout {
         id: content
         anchors.fill: parent
