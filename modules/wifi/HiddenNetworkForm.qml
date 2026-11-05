@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
 import qs.components
-import qs.components.controls
 import qs.services
 
 // Vue « Caché » : ajout et connexion à un réseau dont le nom n'est pas diffusé.
@@ -77,13 +76,10 @@ ColumnLayout {
                 }
             }
 
-            StyledTextField {
+            WifiField {
                 id: ssidField
                 Layout.fillWidth: true
-                type: StyledTextField.Filled
-                font: Tokens.font.body.builders.small.size(9.5).build()
-                verticalPadding: 8
-                horizontalPadding: 12
+                icon: "wifi"
                 placeholderText: qsTr("Nom du réseau (SSID)")
                 onAccepted: root.submit()
             }
@@ -103,14 +99,11 @@ ColumnLayout {
                 }
             }
 
-            StyledTextField {
+            WifiField {
                 id: passwordField
                 visible: secured.checked
                 Layout.fillWidth: true
-                type: StyledTextField.Filled
-                font: Tokens.font.body.builders.small.size(9.5).build()
-                verticalPadding: 8
-                horizontalPadding: 12
+                icon: "key"
                 placeholderText: qsTr("Mot de passe")
                 echoMode: TextInput.Password
                 onAccepted: root.submit()

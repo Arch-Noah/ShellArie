@@ -103,8 +103,7 @@ Scope {
                 exclusiveZone: screenScope.isBarVisible ? 40 : 0
 
                 WlrLayershell.layer: WlrLayer.Overlay
-                // Exclusif tant que le panneau Wi-Fi est ouvert : saisie du mot de passe et flèches
-                WlrLayershell.keyboardFocus: wifiWrapper.shouldBeActive ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
+                WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
                 mask: inputMask
                 Region {
