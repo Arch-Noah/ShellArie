@@ -13,6 +13,8 @@ RowLayout {
     id: utilitiesLayout
     spacing: 0
 
+    property var screenState
+
     Rectangle {
         id: systemTrayGroup
         implicitWidth: innerLayout.implicitWidth
@@ -42,7 +44,10 @@ RowLayout {
                 }
                 
                 labelText: ssidText
-                onClickCommand: "\"" + Paths.qsManager + "\" toggle network wifi"
+                onClicked: {
+                    if (utilitiesLayout.screenState)
+                        utilitiesLayout.screenState.wifi = !utilitiesLayout.screenState.wifi;
+                }
             }
 
             CustomRevealer {

@@ -9,8 +9,13 @@ PersistentProperties {
     property bool session
     property bool launcher
     property bool dashboard
+    property bool wifi
     property bool utilities
     property bool sidebar
+
+    // Un seul des panneaux dashboard / wifi est ouvert à la fois
+    onDashboardChanged: if (dashboard) wifi = false
+    onWifiChanged: if (wifi) dashboard = false
 
     // Dashboard state
     property int dashboardTab

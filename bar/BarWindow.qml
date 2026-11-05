@@ -6,6 +6,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.services
 import "../modules/dashboard" as Dashboard
+import "../modules/wifi" as Wifi
 import "commons"
 import "components"
 
@@ -97,7 +98,7 @@ Scope {
                     right: Styles.globalMargin
                 }
 
-                implicitHeight: Math.max(dashWrapper.implicitHeight + 60, 850)
+                implicitHeight: Math.max(dashWrapper.implicitHeight + 60, wifiWrapper.implicitHeight + 60, 850)
                 
                 exclusiveZone: screenScope.isBarVisible ? 40 : 0
 
@@ -109,7 +110,10 @@ Scope {
                     id: inputMask
                     x: 0; y: 0
                     width: barWindow.width
-                    height: dashWrapper.visible ? (barRect.height + 10 + dashWrapper.implicitHeight) : barRect.height
+                    height: (dashWrapper.visible || wifiWrapper.visible)
+                        ? (barRect.height + 10 + Math.max(dashWrapper.visible ? dashWrapper.implicitHeight : 0,
+                                                          wifiWrapper.visible ? wifiWrapper.implicitHeight : 0))
+                        : barRect.height
                     // Zone cliquable de la seconde barre (union avec le rectangle ci-dessus)
                     regions: [
                         Region {
@@ -122,10 +126,11 @@ Scope {
                 }
 
                 HyprlandFocusGrab {
-                    active: dashWrapper.shouldBeActive
+                    active: dashWrapper.shouldBeActive || wifiWrapper.shouldBeActive
                     windows: [barWindow]
                     onCleared: {
                         dashWrapper.screenState.dashboard = false;
+                        wifiWrapper.screenState.wifi = false;
                     }
                 }
 
@@ -141,11 +146,19 @@ Scope {
                         z: -1 // Behind the bar
                     }
 
+                    Wifi.Wrapper {
+                        id: wifiWrapper
+                        screenState: ShellState.forScreen(modelData)
+                        anchors.top: barRect.bottom
+                        anchors.right: parent.right
+                        z: -1 // Derrière la barre, comme le dashboard
+                    }
+
                     Taskbar {
                         id: taskbar
                         screen: modelData
                         barHeight: barRect.height
-                        suppressed: dashWrapper.visible
+                        suppressed: dashWrapper.visible || wifiWrapper.visible
                         forceShow: root.taskbarEnabled || root.rofiOpen
                         anchors.top: barRect.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -201,6 +214,7 @@ Scope {
                             Item {
                                 Layout.fillWidth: true
                                 Utilities {
+                                    screenState: ShellState.forScreen(modelData)
                                     anchors.right: parent.right
                                     anchors.verticalCenter: parent.verticalCenter
                                 }

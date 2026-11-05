@@ -12,6 +12,8 @@ Rectangle {
     property string onClickCommand: ""
     property string onRightClickCommand: ""
     property string tooltipText: ""
+
+    signal clicked()
     
     property bool isHovered: ma.containsMouse
     property bool isExpanded: false
@@ -121,6 +123,7 @@ Rectangle {
                     rightClickProcess.running = true;
                 }
             } else {
+                root.clicked();
                 if (root.onClickCommand !== "") {
                     leftClickProcess.running = true;
                 }

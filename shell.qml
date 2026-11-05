@@ -38,6 +38,14 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "wifi"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.wifi = !state.wifi;
+        }
+    }
+
     Bar.BarWindow {
         id: bar
     }
