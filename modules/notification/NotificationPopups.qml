@@ -22,14 +22,15 @@ PanelWindow {
     WlrLayershell.namespace: "qs-popups"
     WlrLayershell.layer: WlrLayer.Overlay
 
+    // Coin inférieur gauche de l'écran
     anchors {
-        top: true
-        right: true
+        bottom: true
+        left: true
     }
 
     margins {
-        top: popupWindow.layoutConfig.marginTop
-        right: popupWindow.layoutConfig.marginRight
+        bottom: popupWindow.layoutConfig.marginBottom
+        left: popupWindow.layoutConfig.marginLeft
     }
 
     exclusionMode: ExclusionMode.Ignore
@@ -55,20 +56,22 @@ PanelWindow {
             anchors.fill: parent
             model: Notifs.popups
             spacing: popupWindow.layoutConfig.spacing
+            // La plus récente en bas, près du coin ; les plus anciennes s'empilent vers le haut
+            verticalLayoutDirection: ListView.BottomToTop
             interactive: false
             clip: false
 
             add: Transition {
                 ParallelAnimation {
                     NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 400; easing.type: Easing.OutQuint }
-                    NumberAnimation { property: "x"; from: popupWindow.width * 0.4; to: 0; duration: 500; easing.type: Easing.OutQuint }
+                    NumberAnimation { property: "x"; from: -popupWindow.width * 0.4; to: 0; duration: 500; easing.type: Easing.OutQuint }
                 }
             }
 
             remove: Transition {
                 ParallelAnimation {
                     NumberAnimation { property: "opacity"; to: 0.0; duration: 350; easing.type: Easing.OutQuint }
-                    NumberAnimation { property: "x"; to: popupWindow.width * 0.4; duration: 400; easing.type: Easing.OutQuint }
+                    NumberAnimation { property: "x"; to: -popupWindow.width * 0.4; duration: 400; easing.type: Easing.OutQuint }
                 }
             }
 

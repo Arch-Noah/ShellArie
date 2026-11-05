@@ -89,6 +89,8 @@ function getPopupLayout(mw, mh, userScale) {
         w: s(350, scale),
         marginTop: s(60, scale),
         marginRight: s(20, scale),
+        marginBottom: s(20, scale),
+        marginLeft: s(20, scale),
         spacing: s(12, scale),
         radius: s(14, scale),
         padding: s(12, scale)
