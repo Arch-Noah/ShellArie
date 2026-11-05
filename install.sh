@@ -140,7 +140,7 @@ fi
 # ---------------------------------------------------------------- external Hyprland scripts
 step "External Hyprland scripts (optional)"
 HYPR_SCRIPTS="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
-for s in qs_manager.sh generate_qs_colors.sh; do
+for s in generate_qs_colors.sh; do
     if [[ -x "$HYPR_SCRIPTS/$s" ]]; then ok "$s"; else warn "$s not found in $HYPR_SCRIPTS (see README)"; fi
 done
 

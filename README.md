@@ -48,7 +48,6 @@ The dashboard drops down from the bar: overview, media player with synced lyrics
 Optional: `ddcutil` (external displays), `tailscale`, `matugen`, `cava`, `libqalculate`, `grim`, the `caelestia` CLI (wallpapers, screen recording).
 
 External scripts used when present in `~/.config/hypr/scripts/`:
-- `qs_manager.sh`: panels opened by clicking the network, battery and volume widgets;
 - `generate_qs_colors.sh`: writes the theme colors to `/tmp/qs_colors.json`.
 
 ## Installation

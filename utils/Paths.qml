@@ -28,7 +28,6 @@ Singleton {
     readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || "/tmp"
     readonly property string hyprConfig: `${Quickshell.env("XDG_CONFIG_HOME") || `${home}/.config`}/hypr`
     readonly property string hyprSettings: `${hyprConfig}/settings.json`
-    readonly property string qsManager: `${hyprConfig}/scripts/qs_manager.sh`
     readonly property string metricdSocket: `${runtime}/metricd.sock`
     readonly property string colorsFile: Quickshell.env("QS_COLORS_FILE") || "/tmp/qs_colors.json"
     readonly property string colorsDir: colorsFile.substring(0, colorsFile.lastIndexOf("/"))

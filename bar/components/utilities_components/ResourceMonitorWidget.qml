@@ -56,17 +56,11 @@ Rectangle {
         }
     }
     
-    Process {
-        id: clickProcess
-        command: [Paths.qsManager, "toggle", "focustime"]
-    }
-    
     MouseArea {
         id: ma
         anchors.fill: parent
         hoverEnabled: true
         propagateComposedEvents: true
         z: -1
-        onClicked: clickProcess.running = true
     }
 }

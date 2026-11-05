@@ -90,7 +90,6 @@ RowLayout {
                 id: ethRevealer
                 iconText: ethText === "Disconnected" ? "󰈂" : "󰈁"
                 labelText: ethText
-                onClickCommand: "\"" + Paths.qsManager + "\" toggle network eth"
                 visible: ethText !== "Disconnected"
                 
                 readonly property string ethText: {
