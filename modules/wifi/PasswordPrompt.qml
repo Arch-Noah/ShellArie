@@ -26,7 +26,7 @@ RowLayout {
         Layout.fillWidth: true
         placeholderText: qsTr("Mot de passe")
         echoMode: TextInput.Password
-        onAccepted: if (text.length > 0)
+        onAccepted: if (text.length > 0 && !Nmcli.connecting)
             root.submitted(text)
     }
 
