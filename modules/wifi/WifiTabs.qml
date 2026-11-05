@@ -3,52 +3,76 @@ import QtQuick.Layouts
 import qs.components
 import qs.services
 
-// Barre d'onglets du panneau Wi-Fi : une vue à la fois.
-RowLayout {
+// Sélecteur de vue du panneau Wi-Fi : une icône par vue, sans texte.
+// Se pilote à la souris ou avec les flèches gauche / droite (gérées par Content).
+Item {
     id: root
 
     property int currentIndex
-    property var tabs: []
+    // Noms d'icônes Material Symbols, un par vue
+    property var icons: []
 
-    spacing: 0
+    implicitHeight: 34
 
-    Repeater {
-        model: root.tabs
+    Rectangle {
+        id: track
+        anchors.centerIn: parent
+        implicitWidth: row.implicitWidth + 8
+        implicitHeight: 30
+        width: implicitWidth
+        height: implicitHeight
+        radius: height / 2
+        color: Colours.tPalette.m3surfaceContainer
 
-        delegate: Item {
-            id: tab
+        // Pastille de la vue courante
+        Rectangle {
+            id: pill
+            height: parent.height - 6
+            width: 44
+            radius: height / 2
+            y: 3
+            x: 4 + root.currentIndex * (width + row.spacing)
+            color: Qt.alpha(Colours.palette.m3primary, 0.22)
 
-            required property int index
-            required property string modelData
-
-            readonly property bool selected: root.currentIndex === index
-
-            Layout.fillWidth: true
-            implicitHeight: label.implicitHeight + 10
-
-            StateLayer {
-                anchors.fill: parent
-                radius: 6
-                onClicked: root.currentIndex = tab.index
+            Behavior on x {
+                NumberAnimation {
+                    duration: 180
+                    easing.type: Easing.OutCubic
+                }
             }
+        }
 
-            WifiText {
-                id: label
-                anchors.centerIn: parent
-                text: tab.modelData
-                size: 9
-                weight: tab.selected ? Font.Medium : Font.Normal
-                color: tab.selected ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
-            }
+        Row {
+            id: row
+            x: 4
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 2
 
-            Rectangle {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                width: parent.width * 0.6
-                height: 2
-                radius: 1
-                color: Colours.palette.m3primary
-                visible: tab.selected
+            Repeater {
+                model: root.icons
+
+                delegate: Item {
+                    id: tab
+
+                    required property int index
+                    required property string modelData
+
+                    width: 44
+                    height: track.height - 6
+
+                    StateLayer {
+                        anchors.fill: parent
+                        radius: height / 2
+                        onClicked: root.currentIndex = tab.index
+                    }
+
+                    WifiIcon {
+                        anchors.centerIn: parent
+                        text: tab.modelData
+                        size: 14
+                        color: root.currentIndex === tab.index ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
+                    }
+                }
             }
         }
     }

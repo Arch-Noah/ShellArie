@@ -15,10 +15,23 @@ Item {
     required property ScreenState screenState
 
     readonly property int margin: 10
-    readonly property int maxContentHeight: 440
+    readonly property int maxContentHeight: 480
 
     // 0 = Connecté, 1 = Disponibles, 2 = Enregistrés, 3 = Caché
-    property int currentTab: 1
+    readonly property var tabIcons: ["wifi", "list", "bookmark", "visibility_off"]
+    // Le panneau s'ouvre toujours sur la vue « Connecté »
+    property int currentTab: 0
+
+    // Flèches gauche / droite : changer de vue
+    focus: true
+    Keys.onLeftPressed: currentTab = Math.max(0, currentTab - 1)
+    Keys.onRightPressed: currentTab = Math.min(tabIcons.length - 1, currentTab + 1)
+
+    // Après un changement de vue, l'éventuel champ de saisie détruit rend le focus : on le reprend
+    onCurrentTabChanged: Qt.callLater(() => {
+        if (!root.activeFocus)
+            root.forceActiveFocus();
+    })
 
     implicitWidth: 340
     implicitHeight: Math.min(column.implicitHeight + margin * 2, maxContentHeight)
@@ -33,8 +46,7 @@ Item {
     }
 
     Component.onCompleted: {
-        // Connecté d'abord s'il y a un réseau actif, sinon la liste des réseaux
-        currentTab = Nmcli.active ? 0 : 1;
+        forceActiveFocus();
         Nmcli.getWirelessDeviceDetails("", null);
         Nmcli.rescanWifi();
         Nmcli.loadSavedConnections(null);
@@ -84,7 +96,7 @@ Item {
         WifiTabs {
             visible: Nmcli.wifiEnabled
             Layout.fillWidth: true
-            tabs: [qsTr("Connecté"), qsTr("Disponibles"), qsTr("Enregistrés"), qsTr("Caché")]
+            icons: root.tabIcons
             currentIndex: root.currentTab
             onCurrentIndexChanged: root.currentTab = currentIndex
         }
