@@ -5,7 +5,7 @@ import qs.components
 import qs.components.controls
 import qs.services
 
-// Ajout et connexion à un réseau caché (SSID, sécurité, mot de passe).
+// Vue « Caché » : ajout et connexion à un réseau dont le nom n'est pas diffusé.
 ColumnLayout {
     id: root
 
@@ -14,15 +14,17 @@ ColumnLayout {
     // Émis après une connexion réussie
     signal closed
 
-    spacing: 6
-
     readonly property bool valid: ssidField.text.trim().length > 0 && (!secured.checked || passwordField.text.length > 0)
+
+    spacing: 0
 
     function submit(): void {
         if (!valid || Nmcli.connecting)
             return;
         errorText = "";
         Nmcli.addHiddenNetwork(ssidField.text.trim(), passwordField.text, secured.checked ? "wpa-psk" : "none", true, result => {
+            if (!root)
+                return;
             if (result.success)
                 root.closed();
             else
@@ -30,67 +32,107 @@ ColumnLayout {
         });
     }
 
-    StyledTextField {
-        id: ssidField
-        Layout.fillWidth: true
-        font: Tokens.font.body.builders.small.size(9).build()
-        verticalPadding: 5
-        horizontalPadding: 8
-        placeholderText: qsTr("Nom du réseau (SSID)")
-        onAccepted: root.submit()
-    }
-
-    RowLayout {
+    WifiCard {
         Layout.fillWidth: true
 
-        WifiText {
-            text: qsTr("Réseau sécurisé (WPA/WPA2)")
+        ColumnLayout {
             Layout.fillWidth: true
-        }
+            Layout.margins: 10
+            spacing: 10
 
-        CompactSwitch {
-            id: secured
-            checked: true
-        }
-    }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
 
-    StyledTextField {
-        id: passwordField
-        visible: secured.checked
-        Layout.fillWidth: true
-        font: Tokens.font.body.builders.small.size(9).build()
-        verticalPadding: 5
-        horizontalPadding: 8
-        placeholderText: qsTr("Mot de passe")
-        echoMode: TextInput.Password
-        onAccepted: root.submit()
-    }
+                Rectangle {
+                    implicitWidth: 30
+                    implicitHeight: 30
+                    radius: 15
+                    color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
 
-    WifiText {
-        size: 8
-        visible: root.errorText !== ""
-        text: root.errorText
-        color: Colours.palette.m3error
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
+                    WifiIcon {
+                        anchors.centerIn: parent
+                        text: "visibility_off"
+                        size: 15
+                    }
+                }
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: 8
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 1
 
-        Item {
-            Layout.fillWidth: true
-        }
+                    WifiText {
+                        text: qsTr("Réseau caché")
+                        size: 10
+                        weight: Font.Medium
+                    }
 
-        TextButton {
-            text: qsTr("Connecter")
-            type: TextButton.Filled
-            font: Tokens.font.body.builders.small.size(9).build()
-            horizontalPadding: 8
-            verticalPadding: 3
-            disabled: !root.valid || Nmcli.connecting
-            onClicked: root.submit()
+                    WifiText {
+                        text: qsTr("Saisissez le nom exact du réseau")
+                        size: 8
+                        color: Colours.palette.m3onSurfaceVariant
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+
+            StyledTextField {
+                id: ssidField
+                Layout.fillWidth: true
+                type: StyledTextField.Filled
+                font: Tokens.font.body.builders.small.size(9.5).build()
+                verticalPadding: 8
+                horizontalPadding: 12
+                placeholderText: qsTr("Nom du réseau (SSID)")
+                onAccepted: root.submit()
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                WifiText {
+                    text: qsTr("Réseau sécurisé (WPA/WPA2)")
+                    Layout.fillWidth: true
+                }
+
+                CompactSwitch {
+                    id: secured
+                    checked: true
+                }
+            }
+
+            StyledTextField {
+                id: passwordField
+                visible: secured.checked
+                Layout.fillWidth: true
+                type: StyledTextField.Filled
+                font: Tokens.font.body.builders.small.size(9.5).build()
+                verticalPadding: 8
+                horizontalPadding: 12
+                placeholderText: qsTr("Mot de passe")
+                echoMode: TextInput.Password
+                onAccepted: root.submit()
+            }
+
+            WifiText {
+                visible: root.errorText !== ""
+                text: root.errorText
+                size: 8.5
+                color: Colours.palette.m3error
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+
+            WifiButton {
+                Layout.fillWidth: true
+                text: qsTr("Se connecter")
+                icon: "wifi"
+                filled: true
+                disabled: !root.valid || Nmcli.connecting
+                onClicked: root.submit()
+            }
         }
     }
 }

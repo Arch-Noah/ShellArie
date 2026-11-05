@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Caelestia.Config
 import qs.components
 import qs.services
@@ -15,6 +16,22 @@ ColumnLayout {
     readonly property real strength: root.network?.strength ?? 0
 
     spacing: 10
+
+    property bool ssidCopied
+
+    function copySsid(): void {
+        if (!root.network)
+            return;
+        Quickshell.execDetached(["wl-copy", "--", root.network.ssid]);
+        ssidCopied = true;
+        ssidTimer.restart();
+    }
+
+    Timer {
+        id: ssidTimer
+        interval: 1400
+        onTriggered: root.ssidCopied = false
+    }
 
     // Numéro de canal à partir de la fréquence en MHz (0 si inconnue)
     function channelFor(freq: int): int {
@@ -88,6 +105,14 @@ ColumnLayout {
         radius: 16
         color: Qt.alpha(Colours.palette.m3primary, 0.12)
 
+        // Un clic sur la carte copie le nom du réseau
+        StateLayer {
+            anchors.fill: parent
+            radius: parent.radius
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.copySsid()
+        }
+
         ColumnLayout {
             id: hero
             anchors.fill: parent
@@ -135,7 +160,7 @@ ColumnLayout {
                         }
 
                         WifiText {
-                            text: qsTr("Connecté")
+                            text: root.ssidCopied ? qsTr("Nom copié") : qsTr("Connecté")
                             size: 8.5
                             color: Colours.palette.m3primary
                         }
@@ -171,136 +196,70 @@ ColumnLayout {
         }
     }
 
-    // --- Informations de connexion ---
-    Rectangle {
+    // --- Informations de connexion (un clic copie la valeur) ---
+    WifiCard {
         visible: !!root.network
         Layout.fillWidth: true
-        implicitHeight: info.implicitHeight + 12
-        radius: 16
-        color: Colours.tPalette.m3surfaceContainer
 
-        ColumnLayout {
-            id: info
-            anchors.fill: parent
-            anchors.margins: 6
-            spacing: 0
+        Repeater {
+            model: [
+                {
+                    icon: "lan",
+                    label: qsTr("Adresse IP"),
+                    value: root.orDash(root.details?.ipAddress ?? "")
+                },
+                {
+                    icon: "router",
+                    label: qsTr("Passerelle"),
+                    value: root.orDash(root.details?.gateway ?? "")
+                },
+                {
+                    icon: "dns",
+                    label: qsTr("DNS"),
+                    value: root.orDash((root.details?.dns ?? []).join(", "))
+                },
+                {
+                    icon: "tag",
+                    label: qsTr("Adresse MAC"),
+                    value: root.orDash(root.details?.macAddress ?? "")
+                },
+                {
+                    icon: "settings_input_antenna",
+                    label: qsTr("Fréquence"),
+                    value: root.frequencyText(root.network?.frequency ?? 0)
+                }
+            ]
 
-            Repeater {
-                model: [
-                    {
-                        icon: "lan",
-                        label: qsTr("Adresse IP"),
-                        value: root.orDash(root.details?.ipAddress ?? "")
-                    },
-                    {
-                        icon: "router",
-                        label: qsTr("Passerelle"),
-                        value: root.orDash(root.details?.gateway ?? "")
-                    },
-                    {
-                        icon: "dns",
-                        label: qsTr("DNS"),
-                        value: root.orDash((root.details?.dns ?? []).join(", "))
-                    },
-                    {
-                        icon: "tag",
-                        label: qsTr("Adresse MAC"),
-                        value: root.orDash(root.details?.macAddress ?? "")
-                    },
-                    {
-                        icon: "settings_input_antenna",
-                        label: qsTr("Fréquence"),
-                        value: root.frequencyText(root.network?.frequency ?? 0)
-                    }
-                ]
+            delegate: ColumnLayout {
+                id: line
 
-                delegate: ColumnLayout {
-                    id: line
+                required property int index
+                required property var modelData
 
-                    required property int index
-                    required property var modelData
+                Layout.fillWidth: true
+                spacing: 0
 
+                WifiDivider {
+                    visible: line.index > 0
+                }
+
+                InfoRow {
                     Layout.fillWidth: true
-                    spacing: 0
-
-                    // Filet de séparation entre deux lignes
-                    Rectangle {
-                        visible: line.index > 0
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 34
-                        Layout.rightMargin: 8
-                        implicitHeight: 1
-                        color: Qt.alpha(Colours.palette.m3onSurface, 0.06)
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-                        Layout.topMargin: 7
-                        Layout.bottomMargin: 7
-                        spacing: 10
-
-                        WifiIcon {
-                            text: line.modelData.icon
-                            size: 14
-                            color: Colours.palette.m3onSurfaceVariant
-                            Layout.alignment: Qt.AlignVCenter
-                        }
-
-                        WifiText {
-                            text: line.modelData.label
-                            size: 9
-                            color: Colours.palette.m3onSurfaceVariant
-                            Layout.alignment: Qt.AlignVCenter
-                        }
-
-                        WifiText {
-                            text: line.modelData.value
-                            size: 9
-                            weight: Font.Medium
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
-                            horizontalAlignment: Text.AlignRight
-                            wrapMode: Text.WrapAnywhere
-                        }
-                    }
+                    icon: line.modelData.icon
+                    label: line.modelData.label
+                    value: line.modelData.value
                 }
             }
         }
     }
 
     // --- Déconnexion ---
-    Rectangle {
-        id: disconnect
+    WifiButton {
         visible: !!root.network
         Layout.fillWidth: true
-        implicitHeight: 38
-        radius: 12
-        color: Qt.alpha(Colours.palette.m3error, 0.14)
-
-        StateLayer {
-            anchors.fill: parent
-            radius: disconnect.radius
-            onClicked: Nmcli.disconnectFromNetwork()
-        }
-
-        RowLayout {
-            anchors.centerIn: parent
-            spacing: 8
-
-            WifiIcon {
-                text: "link_off"
-                size: 15
-                color: Colours.palette.m3error
-            }
-
-            WifiText {
-                text: qsTr("Se déconnecter")
-                size: 9.5
-                weight: Font.Medium
-                color: Colours.palette.m3error
-            }
-        }
+        text: qsTr("Se déconnecter")
+        icon: "link_off"
+        tint: Colours.palette.m3error
+        onClicked: Nmcli.disconnectFromNetwork()
     }
 }

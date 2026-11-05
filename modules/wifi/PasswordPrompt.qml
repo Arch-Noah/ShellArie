@@ -11,7 +11,7 @@ RowLayout {
 
     signal submitted(string password)
 
-    spacing: 6
+    spacing: 8
 
     function clear(): void {
         field.text = "";
@@ -24,22 +24,21 @@ RowLayout {
     StyledTextField {
         id: field
         Layout.fillWidth: true
-        font: Tokens.font.body.builders.small.size(9).build()
-        verticalPadding: 5
-        horizontalPadding: 8
+        type: StyledTextField.Filled
+        font: Tokens.font.body.builders.small.size(9.5).build()
+        verticalPadding: 8
+        horizontalPadding: 12
         placeholderText: qsTr("Mot de passe")
         echoMode: TextInput.Password
         onAccepted: if (text.length > 0 && !Nmcli.connecting)
             root.submitted(text)
     }
 
-    TextButton {
-        text: qsTr("Connecter")
-        type: TextButton.Filled
-        font: Tokens.font.body.builders.small.size(9).build()
-        horizontalPadding: 8
-        verticalPadding: 4
+    WifiButton {
+        icon: "arrow_forward"
+        filled: true
         disabled: field.text.length === 0 || Nmcli.connecting
+        implicitHeight: 34
         onClicked: root.submitted(field.text)
     }
 }

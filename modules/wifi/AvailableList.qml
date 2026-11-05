@@ -44,81 +44,91 @@ ColumnLayout {
 
     spacing: 0
 
-    WifiText {
-        visible: root.available.length === 0
-        text: qsTr("Aucun réseau détecté")
-        color: Colours.palette.m3onSurfaceVariant
+    WifiCard {
         Layout.fillWidth: true
-        Layout.margins: 6
-    }
 
-    Repeater {
-        model: root.available
-
-        delegate: ColumnLayout {
-            id: item
-
-            required property var modelData
-
+        WifiText {
+            visible: root.available.length === 0
+            text: qsTr("Aucun réseau détecté")
+            color: Colours.palette.m3onSurfaceVariant
             Layout.fillWidth: true
-            spacing: 0
+            Layout.margins: 14
+            horizontalAlignment: Text.AlignHCenter
+        }
 
-            function attempt(password: string): void {
-                row.errorText = "";
-                Nmcli.connectToNetwork(modelData.ssid, password, modelData.bssid, result => {
-                    if (result.success) {
-                        root.expandedSsid = "";
-                        prompt.clear();
-                    } else if (result.needsPassword) {
-                        row.errorText = qsTr("Mot de passe refusé");
-                    } else {
-                        row.errorText = result.error || qsTr("Échec de la connexion");
-                    }
-                });
-            }
+        Repeater {
+            model: root.available
 
-            NetworkRow {
-                id: row
+            delegate: ColumnLayout {
+                id: item
+
+                required property int index
+                required property var modelData
+
                 Layout.fillWidth: true
-                network: item.modelData
-                onConnectRequested: {
-                    if (Nmcli.connecting)
-                        return;
-                    errorText = "";
-                    if (item.modelData.isSecure && !Nmcli.hasSavedProfile(item.modelData.ssid)) {
-                        root.expandedSsid = root.expandedSsid === item.modelData.ssid ? "" : item.modelData.ssid;
-                        return;
-                    }
-                    root.expandedSsid = "";
-                    Nmcli.connectToNetworkWithPasswordCheck(item.modelData.ssid, item.modelData.isSecure, result => {
-                        if (result.success)
-                            return;
-                        if (result.needsPassword)
-                            root.expandedSsid = item.modelData.ssid;
-                        else
-                            errorText = result.error || qsTr("Échec de la connexion");
-                    }, item.modelData.bssid);
+                spacing: 0
+
+                function attempt(password: string): void {
+                    row.errorText = "";
+                    Nmcli.connectToNetwork(modelData.ssid, password, modelData.bssid, result => {
+                        if (result.success) {
+                            root.expandedSsid = "";
+                            prompt.clear();
+                        } else if (result.needsPassword) {
+                            row.errorText = qsTr("Mot de passe refusé");
+                        } else {
+                            row.errorText = result.error || qsTr("Échec de la connexion");
+                        }
+                    });
                 }
-            }
 
-            PasswordPrompt {
-                id: prompt
-                visible: root.expandedSsid === item.modelData.ssid
-                Layout.fillWidth: true
-                Layout.leftMargin: 6
-                Layout.rightMargin: 6
-                Layout.bottomMargin: 4
-                onVisibleChanged: if (visible)
-                    focusField()
-                onSubmitted: password => item.attempt(password)
-            }
+                WifiDivider {
+                    visible: item.index > 0
+                }
 
-            Connections {
-                target: Nmcli
+                NetworkRow {
+                    id: row
+                    Layout.fillWidth: true
+                    network: item.modelData
+                    onConnectRequested: {
+                        if (Nmcli.connecting)
+                            return;
+                        errorText = "";
+                        if (item.modelData.isSecure && !Nmcli.hasSavedProfile(item.modelData.ssid)) {
+                            root.expandedSsid = root.expandedSsid === item.modelData.ssid ? "" : item.modelData.ssid;
+                            return;
+                        }
+                        root.expandedSsid = "";
+                        Nmcli.connectToNetworkWithPasswordCheck(item.modelData.ssid, item.modelData.isSecure, result => {
+                            if (result.success)
+                                return;
+                            if (result.needsPassword)
+                                root.expandedSsid = item.modelData.ssid;
+                            else
+                                errorText = result.error || qsTr("Échec de la connexion");
+                        }, item.modelData.bssid);
+                    }
+                }
 
-                function onConnectionFailed(ssid: string): void {
-                    if (ssid === item.modelData.ssid && row.errorText === "")
-                        row.errorText = qsTr("Échec de la connexion");
+                PasswordPrompt {
+                    id: prompt
+                    visible: root.expandedSsid === item.modelData.ssid
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 10
+                    Layout.rightMargin: 10
+                    Layout.bottomMargin: 10
+                    onVisibleChanged: if (visible)
+                        focusField()
+                    onSubmitted: password => item.attempt(password)
+                }
+
+                Connections {
+                    target: Nmcli
+
+                    function onConnectionFailed(ssid: string): void {
+                        if (ssid === item.modelData.ssid && row.errorText === "")
+                            row.errorText = qsTr("Échec de la connexion");
+                    }
                 }
             }
         }

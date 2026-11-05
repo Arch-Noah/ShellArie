@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Caelestia.Config
 import qs.components
-import qs.components.controls
 import qs.services
 
 // Un réseau enregistré : connexion automatique et oubli (avec confirmation).
@@ -13,12 +12,13 @@ ColumnLayout {
 
     // Le nom de la connexion NetworkManager peut différer du SSID (ex. « Hotspot » → « archnoah »)
     readonly property string connectionName: Nmcli.savedConnectionNameBySsid[ssid.toLowerCase().trim()] ?? ssid
+    readonly property bool isActive: (Nmcli.active?.ssid ?? "") === ssid
 
     property bool autoconnect: true
     property bool confirmingForget
     property string errorText
 
-    spacing: 1
+    spacing: 0
 
     // La ligne peut être détruite (liste rechargée) avant la réponse de nmcli
     function refreshAutoconnect(): void {
@@ -33,21 +33,45 @@ ColumnLayout {
 
     RowLayout {
         Layout.fillWidth: true
-        Layout.leftMargin: 6
-        Layout.rightMargin: 6
-        spacing: 6
+        Layout.leftMargin: 10
+        Layout.rightMargin: 10
+        Layout.topMargin: 8
+        Layout.bottomMargin: 8
+        spacing: 10
 
-        WifiText {
-            text: root.ssid
-            elide: Text.ElideRight
-            Layout.fillWidth: true
+        Rectangle {
+            implicitWidth: 30
+            implicitHeight: 30
+            radius: 15
+            color: root.isActive ? Qt.alpha(Colours.palette.m3primary, 0.2) : Qt.alpha(Colours.palette.m3onSurface, 0.08)
+
+            WifiIcon {
+                anchors.centerIn: parent
+                text: root.isActive ? "wifi" : "bookmark"
+                size: 15
+                color: root.isActive ? Colours.palette.m3primary : Colours.palette.m3onSurface
+            }
         }
 
-        WifiText {
-            visible: !root.confirmingForget
-            size: 8
-            text: qsTr("Auto")
-            color: Colours.palette.m3onSurfaceVariant
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 1
+
+            WifiText {
+                text: root.ssid
+                size: 10
+                weight: Font.Medium
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
+
+            WifiText {
+                text: root.isActive ? qsTr("Connecté") : (root.autoconnect ? qsTr("Connexion automatique") : qsTr("Connexion manuelle"))
+                size: 8
+                color: root.isActive ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
         }
 
         CompactSwitch {
@@ -70,21 +94,21 @@ ColumnLayout {
             }
         }
 
-        IconButton {
+        WifiButton {
             visible: !root.confirmingForget
             icon: "delete"
-            type: IconButton.Text
-            font: Tokens.font.icon.builders.medium.size(13).build()
+            tint: Colours.palette.m3error
             onClicked: root.confirmingForget = true
         }
 
-        TextButton {
+        WifiButton {
             visible: root.confirmingForget
             text: qsTr("Oublier")
-            type: TextButton.Filled
-            font: Tokens.font.body.builders.small.size(9).build()
-            horizontalPadding: 8
-            verticalPadding: 3
+            tint: Colours.palette.m3error
+            onTint: Colours.palette.m3onError
+            filled: true
+            textSize: 8.5
+            implicitHeight: 28
             onClicked: {
                 root.errorText = "";
                 Nmcli.forgetNetwork(root.ssid, result => {
@@ -97,25 +121,25 @@ ColumnLayout {
             }
         }
 
-        TextButton {
+        WifiButton {
             visible: root.confirmingForget
             text: qsTr("Annuler")
-            type: TextButton.Text
-            font: Tokens.font.body.builders.small.size(9).build()
-            horizontalPadding: 8
-            verticalPadding: 3
+            tint: Colours.palette.m3onSurfaceVariant
+            textSize: 8.5
+            implicitHeight: 28
             onClicked: root.confirmingForget = false
         }
     }
 
     WifiText {
-        size: 8
         visible: root.errorText !== ""
         text: root.errorText
+        size: 8.5
         color: Colours.palette.m3error
         wrapMode: Text.WordWrap
         Layout.fillWidth: true
-        Layout.leftMargin: 6
-        Layout.rightMargin: 6
+        Layout.leftMargin: 50
+        Layout.rightMargin: 10
+        Layout.bottomMargin: 8
     }
 }

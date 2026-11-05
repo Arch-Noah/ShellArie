@@ -6,7 +6,7 @@ import Caelestia.Config
 import qs.components
 import qs.services
 
-// Une ligne de réseau Wi-Fi disponible : signal, SSID, cadenas, état de connexion.
+// Une ligne de réseau disponible : signal, nom, sécurité, état de connexion.
 Item {
     id: root
 
@@ -14,6 +14,7 @@ Item {
     property string errorText
 
     readonly property bool connectingThis: Nmcli.connecting && Nmcli.connectingSsid() === network.ssid
+    readonly property bool known: Nmcli.hasSavedProfile(network.ssid)
 
     signal connectRequested
 
@@ -31,60 +32,85 @@ Item {
 
     StateLayer {
         anchors.fill: parent
-        radius: Tokens.rounding.small
+        anchors.margins: 2
+        radius: 12
         disabled: Nmcli.connecting
+        cursorShape: Qt.PointingHandCursor
         onClicked: root.connectRequested()
     }
 
     ColumnLayout {
         id: layout
         anchors.fill: parent
-        spacing: 1
+        spacing: 0
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 6
-            Layout.rightMargin: 6
-            Layout.topMargin: 4
-            Layout.bottomMargin: 4
-            spacing: 8
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
+            Layout.topMargin: 8
+            Layout.bottomMargin: 8
+            spacing: 10
 
-            WifiIcon {
-                text: root.signalIcon(root.network.strength)
-                size: 14
+            Rectangle {
+                implicitWidth: 30
+                implicitHeight: 30
+                radius: 15
+                color: Qt.alpha(Colours.palette.m3onSurface, 0.08)
+
+                WifiIcon {
+                    anchors.centerIn: parent
+                    text: root.signalIcon(root.network.strength)
+                    size: 15
+                }
             }
 
-            WifiText {
-                text: root.network.ssid
-                elide: Text.ElideRight
+            ColumnLayout {
                 Layout.fillWidth: true
+                spacing: 1
+
+                WifiText {
+                    text: root.network.ssid
+                    size: 10
+                    weight: Font.Medium
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
+
+                WifiText {
+                    text: (root.network.isSecure ? root.network.security : qsTr("Ouvert")) + " · " + Math.round(root.network.strength) + " %" + (root.known ? " · " + qsTr("Enregistré") : "")
+                    size: 8
+                    color: Colours.palette.m3onSurfaceVariant
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
             }
 
             WifiText {
                 visible: root.connectingThis
-                size: 8
                 text: qsTr("Connexion…")
-                color: Colours.palette.m3onSurfaceVariant
+                size: 8.5
+                color: Colours.palette.m3primary
             }
 
             WifiIcon {
-                visible: root.network.isSecure
+                visible: root.network.isSecure && !root.connectingThis
                 text: "lock"
-                size: 11
+                size: 13
                 color: Colours.palette.m3onSurfaceVariant
             }
         }
 
         WifiText {
-            size: 8
             visible: root.errorText !== ""
             text: root.errorText
+            size: 8.5
             color: Colours.palette.m3error
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            Layout.leftMargin: 6
-            Layout.rightMargin: 6
-            Layout.bottomMargin: 4
+            Layout.leftMargin: 50
+            Layout.rightMargin: 10
+            Layout.bottomMargin: 8
         }
     }
 }

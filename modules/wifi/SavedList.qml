@@ -8,22 +8,50 @@ ColumnLayout {
 
     spacing: 0
 
-    WifiText {
-        visible: Nmcli.savedConnectionSsids.length === 0
-        text: qsTr("Aucun réseau enregistré")
-        color: Colours.palette.m3onSurfaceVariant
+    WifiCard {
         Layout.fillWidth: true
-        Layout.margins: 6
-    }
 
-    Repeater {
-        model: Nmcli.savedConnectionSsids
-
-        delegate: SavedRow {
-            required property string modelData
-
-            ssid: modelData
+        ColumnLayout {
+            visible: Nmcli.savedConnectionSsids.length === 0
             Layout.fillWidth: true
+            Layout.margins: 18
+            spacing: 8
+
+            WifiIcon {
+                text: "bookmark"
+                size: 22
+                color: Colours.palette.m3onSurfaceVariant
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            WifiText {
+                text: qsTr("Aucun réseau enregistré")
+                color: Colours.palette.m3onSurfaceVariant
+                Layout.alignment: Qt.AlignHCenter
+            }
+        }
+
+        Repeater {
+            model: Nmcli.savedConnectionSsids
+
+            delegate: ColumnLayout {
+                id: item
+
+                required property int index
+                required property string modelData
+
+                Layout.fillWidth: true
+                spacing: 0
+
+                WifiDivider {
+                    visible: item.index > 0
+                }
+
+                SavedRow {
+                    Layout.fillWidth: true
+                    ssid: item.modelData
+                }
+            }
         }
     }
 }
