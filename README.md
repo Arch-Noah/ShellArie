@@ -22,7 +22,10 @@ The dashboard drops down from the bar: overview, media player with synced lyrics
 
 - **Main bar**: workspaces (click to switch, drag and drop windows between them), clock, media player, network throughput, Wi-Fi / Bluetooth / Ethernet, battery, volume, brightness, resources (CPU / RAM / disk), Tailscale.
 - **Dashboard** below the bar: overview, media (lyrics), performance, weather.
-- **Notifications**: popups and a notification center with a Do Not Disturb mode.
+- **Sound panel** below the bar (click the volume widget): output and input volume with mute, and default device selection.
+- **Bluetooth panel** below the bar (click the Bluetooth icon): connected device (battery, copyable address), paired devices (connect / disconnect, trust, forget), discovery and pairing of new devices, adapter settings (visible, pairable). Arrow keys switch views.
+- **Wi-Fi panel** below the bar (click the Wi-Fi icon): connect to a network (with password or hidden SSID), details of the active network (IP, gateway, DNS, MAC, channel), saved networks (auto-connect, forget).
+- **Notifications**: popups (bottom left) and a floating notification center on the right (bell in the bar): list with actions, Do Not Disturb, clear all.
 - **Application bar** attached under the main bar, showing an icon for each open application:
   - click: jump to the application's workspace (launches it if it is closed);
   - right click: pin / unpin the application (kept across reboots);
@@ -82,6 +85,10 @@ IPC commands (`qs ipc -p ~/.config/quickshell/ShellArie/shell.qml call <target> 
 | `taskbar` | `toggle` | show / hide the application bar |
 | `taskbar` | `togglePin <appId>` | pin / unpin an application |
 | `dashboard` | `toggle`, `showTab <n>` | open the dashboard (on tab *n*) |
+| `wifi` | `toggle` | open / close the Wi-Fi panel |
+| `bluetooth` | `toggle` | open / close the Bluetooth panel |
+| `sound` | `toggle` | open / close the Sound panel |
+| `notifcenter` | `toggle` | open / close the notification center |
 
 `qs ipc -p … show` lists every available target (media, volume, brightness, notifications…).
 

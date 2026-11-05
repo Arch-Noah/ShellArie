@@ -13,6 +13,10 @@ Singleton {
         return states.instances.some(s => s.sidebar);
     }
 
+    function anyNotifCenterOpen(): bool {
+        return states.instances.some(s => s.notifCenter);
+    }
+
     function forScreen(screen: ShellScreen): ScreenState {
         for (const s of states.instances)
             if (s.modelData === screen)

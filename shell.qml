@@ -10,6 +10,7 @@ import "bar" as Bar
 import "components"
 import "modules"
 import "modules/notification"
+import "modules/notifcenter"
 
 Scope {
     id: root
@@ -38,8 +39,42 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "wifi"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.wifi = !state.wifi;
+        }
+    }
+
+    IpcHandler {
+        target: "bluetooth"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.bluetooth = !state.bluetooth;
+        }
+    }
+
+    IpcHandler {
+        target: "sound"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.audio = !state.audio;
+        }
+    }
+
     Bar.BarWindow {
         id: bar
+    }
+
+    NotifCenterWindow {}
+
+    IpcHandler {
+        target: "notifcenter"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.notifCenter = !state.notifCenter;
+        }
     }
 
     NotificationPopups {
