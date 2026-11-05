@@ -192,9 +192,7 @@ Rectangle {
         id: ma
         anchors.fill: parent
         hoverEnabled: true
-        propagateComposedEvents: true
-        onPressed: mouse.accepted = false
-        onReleased: mouse.accepted = false
+        // Le curseur (au-dessus, z plus haut) garde ses propres appuis ; ici seul le clic compte
         onClicked: {
             if (root.screenState)
                 root.screenState.audio = !root.screenState.audio;
