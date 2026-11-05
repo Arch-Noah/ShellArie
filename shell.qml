@@ -10,6 +10,7 @@ import "bar" as Bar
 import "components"
 import "modules"
 import "modules/notification"
+import "modules/notifcenter"
 
 Scope {
     id: root
@@ -64,6 +65,16 @@ Scope {
 
     Bar.BarWindow {
         id: bar
+    }
+
+    NotifCenterWindow {}
+
+    IpcHandler {
+        target: "notifcenter"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.notifCenter = !state.notifCenter;
+        }
     }
 
     NotificationPopups {

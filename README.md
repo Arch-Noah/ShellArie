@@ -25,7 +25,7 @@ The dashboard drops down from the bar: overview, media player with synced lyrics
 - **Sound panel** below the bar (click the volume widget): output and input volume with mute, and default device selection.
 - **Bluetooth panel** below the bar (click the Bluetooth icon): connected device (battery, copyable address), paired devices (connect / disconnect, trust, forget), discovery and pairing of new devices, adapter settings (visible, pairable). Arrow keys switch views.
 - **Wi-Fi panel** below the bar (click the Wi-Fi icon): connect to a network (with password or hidden SSID), details of the active network (IP, gateway, DNS, MAC, channel), saved networks (auto-connect, forget).
-- **Notifications**: popups and a notification center with a Do Not Disturb mode.
+- **Notifications**: popups (bottom left) and a floating notification center on the right (bell in the bar): list with actions, Do Not Disturb, clear all.
 - **Application bar** attached under the main bar, showing an icon for each open application:
   - click: jump to the application's workspace (launches it if it is closed);
   - right click: pin / unpin the application (kept across reboots);
@@ -88,6 +88,7 @@ IPC commands (`qs ipc -p ~/.config/quickshell/ShellArie/shell.qml call <target> 
 | `wifi` | `toggle` | open / close the Wi-Fi panel |
 | `bluetooth` | `toggle` | open / close the Bluetooth panel |
 | `sound` | `toggle` | open / close the Sound panel |
+| `notifcenter` | `toggle` | open / close the notification center |
 
 `qs ipc -p … show` lists every available target (media, volume, brightness, notifications…).
 

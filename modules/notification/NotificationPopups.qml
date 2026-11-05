@@ -45,7 +45,7 @@ PanelWindow {
         anchors.fill: parent
 
         // We use Notifs.dnd natively now!
-        opacity: Notifs.dnd ? 0.0 : 1.0
+        opacity: (Notifs.dnd || ShellState.anyNotifCenterOpen()) ? 0.0 : 1.0
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: 300 } }
 

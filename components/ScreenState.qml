@@ -12,6 +12,9 @@ PersistentProperties {
     property bool wifi
     property bool bluetooth
     property bool audio
+    // Centre de notifications (fenêtre détachée, indépendante des panneaux de la barre)
+    property bool notifCenter
+    property real notifCenterClosedAt
     property bool utilities
     property bool sidebar
 

@@ -28,6 +28,22 @@ RowLayout {
             spacing: 0
             
             CustomRevealer {
+                id: bellRevealer
+                readonly property int count: Notifs.notClosed.length
+                iconText: Notifs.dnd ? "󰂛" : (count > 0 ? "󱅫" : "󰂚")
+                labelText: Notifs.dnd ? qsTr("Ne pas déranger") : (count > 0 ? count + (count > 1 ? " notifications" : " notification") : qsTr("Aucune notification"))
+                onClicked: {
+                    const st = utilitiesLayout.screenState;
+                    if (!st)
+                        return;
+                    // Le clic sur la cloche vide d'abord le focus grab (qui ferme le centre) : pas de réouverture
+                    if (!st.notifCenter && Date.now() - st.notifCenterClosedAt < 300)
+                        return;
+                    st.notifCenter = !st.notifCenter;
+                }
+            }
+
+            CustomRevealer {
                 id: wifiRevealer
                 
                 // Piloté par Nmcli (événementiel via `nmcli monitor`), plus de polling
