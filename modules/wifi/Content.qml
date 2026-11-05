@@ -16,6 +16,7 @@ Item {
     readonly property int maxContentHeight: 640
     // Réseau dont le champ de mot de passe est déplié (un seul à la fois)
     property string expandedSsid
+    property bool showHiddenForm
 
     // Réseaux non actifs, triés par signal (par paliers de 10 pour limiter les sauts d'ordre).
     // availableRaw se réévalue à chaque scan ; `available` (le modèle du Repeater) n'est remplacé
@@ -205,6 +206,46 @@ Item {
                                 row.errorText = qsTr("Échec de la connexion");
                         }
                     }
+                }
+            }
+
+            // --- Réseau caché ---
+            TextButton {
+                visible: Nmcli.wifiEnabled && !root.showHiddenForm
+                text: qsTr("Réseau caché")
+                type: TextButton.Text
+                Layout.alignment: Qt.AlignLeft
+                onClicked: root.showHiddenForm = true
+            }
+
+            Loader {
+                active: Nmcli.wifiEnabled && root.showHiddenForm
+                visible: active
+                Layout.fillWidth: true
+                Layout.leftMargin: 8
+                Layout.rightMargin: 8
+
+                sourceComponent: HiddenNetworkForm {
+                    onClosed: root.showHiddenForm = false
+                }
+            }
+
+            // --- Réseaux enregistrés ---
+            StyledText {
+                visible: Nmcli.wifiEnabled && Nmcli.savedConnectionSsids.length > 0
+                text: qsTr("Réseaux enregistrés")
+                color: Colours.palette.m3onSurfaceVariant
+                Layout.fillWidth: true
+            }
+
+            Repeater {
+                model: Nmcli.wifiEnabled ? Nmcli.savedConnectionSsids : []
+
+                delegate: SavedRow {
+                    required property string modelData
+
+                    ssid: modelData
+                    Layout.fillWidth: true
                 }
             }
         }
