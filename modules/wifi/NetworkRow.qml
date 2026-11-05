@@ -39,46 +39,52 @@ Item {
     ColumnLayout {
         id: layout
         anchors.fill: parent
-        spacing: 2
+        spacing: 1
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.margins: 8
-            spacing: 10
+            Layout.leftMargin: 6
+            Layout.rightMargin: 6
+            Layout.topMargin: 4
+            Layout.bottomMargin: 4
+            spacing: 8
 
-            MaterialIcon {
+            WifiIcon {
                 text: root.signalIcon(root.network.strength)
-                fontStyle: Tokens.font.icon.medium
+                size: 14
             }
 
-            StyledText {
+            WifiText {
                 text: root.network.ssid
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
 
-            StyledText {
+            WifiText {
                 visible: root.connectingThis
+                size: 8
                 text: qsTr("Connexion…")
                 color: Colours.palette.m3onSurfaceVariant
             }
 
-            MaterialIcon {
+            WifiIcon {
                 visible: root.network.isSecure
                 text: "lock"
+                size: 11
                 color: Colours.palette.m3onSurfaceVariant
             }
         }
 
-        StyledText {
+        WifiText {
+            size: 8
             visible: root.errorText !== ""
             text: root.errorText
             color: Colours.palette.m3error
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
-            Layout.leftMargin: 8
-            Layout.rightMargin: 8
-            Layout.bottomMargin: 6
+            Layout.leftMargin: 6
+            Layout.rightMargin: 6
+            Layout.bottomMargin: 4
         }
     }
 }

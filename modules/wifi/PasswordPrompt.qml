@@ -11,7 +11,7 @@ RowLayout {
 
     signal submitted(string password)
 
-    spacing: 8
+    spacing: 6
 
     function clear(): void {
         field.text = "";
@@ -24,6 +24,9 @@ RowLayout {
     StyledTextField {
         id: field
         Layout.fillWidth: true
+        font: Tokens.font.body.builders.small.size(9).build()
+        verticalPadding: 5
+        horizontalPadding: 8
         placeholderText: qsTr("Mot de passe")
         echoMode: TextInput.Password
         onAccepted: if (text.length > 0 && !Nmcli.connecting)
@@ -33,6 +36,9 @@ RowLayout {
     TextButton {
         text: qsTr("Connecter")
         type: TextButton.Filled
+        font: Tokens.font.body.builders.small.size(9).build()
+        horizontalPadding: 8
+        verticalPadding: 4
         disabled: field.text.length === 0 || Nmcli.connecting
         onClicked: root.submitted(field.text)
     }

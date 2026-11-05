@@ -18,36 +18,47 @@ ColumnLayout {
     property bool confirmingForget
     property string errorText
 
-    spacing: 2
+    spacing: 1
 
-    Component.onCompleted: Nmcli.getAutoconnect(connectionName, value => root.autoconnect = value)
-    onConnectionNameChanged: Nmcli.getAutoconnect(connectionName, value => root.autoconnect = value)
+    // La ligne peut être détruite (liste rechargée) avant la réponse de nmcli
+    function refreshAutoconnect(): void {
+        Nmcli.getAutoconnect(connectionName, value => {
+            if (root)
+                root.autoconnect = value;
+        });
+    }
+
+    Component.onCompleted: refreshAutoconnect()
+    onConnectionNameChanged: refreshAutoconnect()
 
     RowLayout {
         Layout.fillWidth: true
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
-        spacing: 10
+        Layout.leftMargin: 6
+        Layout.rightMargin: 6
+        spacing: 6
 
-        StyledText {
+        WifiText {
             text: root.ssid
             elide: Text.ElideRight
             Layout.fillWidth: true
         }
 
-        StyledText {
+        WifiText {
             visible: !root.confirmingForget
+            size: 8
             text: qsTr("Auto")
             color: Colours.palette.m3onSurfaceVariant
         }
 
-        StyledSwitch {
+        CompactSwitch {
             visible: !root.confirmingForget
             checked: root.autoconnect
             onToggled: {
                 const wanted = checked;
                 root.errorText = "";
                 Nmcli.setAutoconnect(root.connectionName, wanted, result => {
+                    if (!root)
+                        return;
                     if (result.success) {
                         root.autoconnect = wanted;
                     } else {
@@ -63,6 +74,7 @@ ColumnLayout {
             visible: !root.confirmingForget
             icon: "delete"
             type: IconButton.Text
+            font: Tokens.font.icon.builders.medium.size(13).build()
             onClicked: root.confirmingForget = true
         }
 
@@ -70,9 +82,14 @@ ColumnLayout {
             visible: root.confirmingForget
             text: qsTr("Oublier")
             type: TextButton.Filled
+            font: Tokens.font.body.builders.small.size(9).build()
+            horizontalPadding: 8
+            verticalPadding: 3
             onClicked: {
                 root.errorText = "";
                 Nmcli.forgetNetwork(root.ssid, result => {
+                    if (!root)
+                        return;
                     root.confirmingForget = false;
                     if (!result.success)
                         root.errorText = result.error || qsTr("Impossible d'oublier le réseau");
@@ -84,17 +101,21 @@ ColumnLayout {
             visible: root.confirmingForget
             text: qsTr("Annuler")
             type: TextButton.Text
+            font: Tokens.font.body.builders.small.size(9).build()
+            horizontalPadding: 8
+            verticalPadding: 3
             onClicked: root.confirmingForget = false
         }
     }
 
-    StyledText {
+    WifiText {
+        size: 8
         visible: root.errorText !== ""
         text: root.errorText
         color: Colours.palette.m3error
         wrapMode: Text.WordWrap
         Layout.fillWidth: true
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
+        Layout.leftMargin: 6
+        Layout.rightMargin: 6
     }
 }

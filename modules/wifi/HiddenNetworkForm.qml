@@ -11,9 +11,10 @@ ColumnLayout {
 
     property string errorText
 
+    // Émis après une connexion réussie
     signal closed
 
-    spacing: 8
+    spacing: 6
 
     readonly property bool valid: ssidField.text.trim().length > 0 && (!secured.checked || passwordField.text.length > 0)
 
@@ -32,6 +33,9 @@ ColumnLayout {
     StyledTextField {
         id: ssidField
         Layout.fillWidth: true
+        font: Tokens.font.body.builders.small.size(9).build()
+        verticalPadding: 5
+        horizontalPadding: 8
         placeholderText: qsTr("Nom du réseau (SSID)")
         onAccepted: root.submit()
     }
@@ -39,12 +43,12 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
 
-        StyledText {
+        WifiText {
             text: qsTr("Réseau sécurisé (WPA/WPA2)")
             Layout.fillWidth: true
         }
 
-        StyledSwitch {
+        CompactSwitch {
             id: secured
             checked: true
         }
@@ -54,12 +58,16 @@ ColumnLayout {
         id: passwordField
         visible: secured.checked
         Layout.fillWidth: true
+        font: Tokens.font.body.builders.small.size(9).build()
+        verticalPadding: 5
+        horizontalPadding: 8
         placeholderText: qsTr("Mot de passe")
         echoMode: TextInput.Password
         onAccepted: root.submit()
     }
 
-    StyledText {
+    WifiText {
+        size: 8
         visible: root.errorText !== ""
         text: root.errorText
         color: Colours.palette.m3error
@@ -76,14 +84,11 @@ ColumnLayout {
         }
 
         TextButton {
-            text: qsTr("Annuler")
-            type: TextButton.Text
-            onClicked: root.closed()
-        }
-
-        TextButton {
             text: qsTr("Connecter")
             type: TextButton.Filled
+            font: Tokens.font.body.builders.small.size(9).build()
+            horizontalPadding: 8
+            verticalPadding: 3
             disabled: !root.valid || Nmcli.connecting
             onClicked: root.submit()
         }

@@ -7,46 +7,20 @@ import qs.components
 import qs.components.controls
 import qs.services
 
+// Contenu du panneau Wi-Fi : en-tête fixe, onglets, et une seule vue à la fois
+// (Connecté / Disponibles / Enregistrés / Caché) dans une zone défilante.
 Item {
     id: root
 
     required property ScreenState screenState
 
-    readonly property int margin: 16
-    readonly property int maxContentHeight: 640
-    // Réseau dont le champ de mot de passe est déplié (un seul à la fois)
-    property string expandedSsid
-    property bool showHiddenForm
+    readonly property int margin: 10
+    readonly property int maxContentHeight: 440
 
-    // Réseaux non actifs, triés par signal (par paliers de 10 pour limiter les sauts d'ordre).
-    // availableRaw se réévalue à chaque scan ; `available` (le modèle du Repeater) n'est remplacé
-    // que si la liste change vraiment, pour ne pas détruire un champ de mot de passe en cours de saisie.
-    readonly property var availableRaw: {
-        const list = [];
-        for (const n of Nmcli.networks) {
-            if (!n.active)
-                list.push({
-                    ap: n,
-                    bucket: Math.round(n.strength / 10)
-                });
-        }
-        list.sort((a, b) => b.bucket - a.bucket || a.ap.ssid.localeCompare(b.ap.ssid));
-        return list.map(e => e.ap);
-    }
-    property var available: []
-    property string availableKey
+    // 0 = Connecté, 1 = Disponibles, 2 = Enregistrés, 3 = Caché
+    property int currentTab: 1
 
-    onAvailableRawChanged: {
-        const ssids = availableRaw.map(n => n.ssid);
-        // Un mot de passe est en cours de saisie : on ignore l'ordre, seul l'ensemble compte
-        const key = (expandedSsid !== "" ? ssids.slice().sort() : ssids).join("\n");
-        if (key !== availableKey) {
-            availableKey = key;
-            available = availableRaw;
-        }
-    }
-
-    implicitWidth: 420
+    implicitWidth: 340
     implicitHeight: Math.min(column.implicitHeight + margin * 2, maxContentHeight)
 
     // Les détails IP/DNS/MAC suivent le réseau actif
@@ -59,195 +33,119 @@ Item {
     }
 
     Component.onCompleted: {
-        availableRawChanged();
+        // Connecté d'abord s'il y a un réseau actif, sinon la liste des réseaux
+        currentTab = Nmcli.active ? 0 : 1;
         Nmcli.getWirelessDeviceDetails("", null);
         Nmcli.rescanWifi();
         Nmcli.loadSavedConnections(null);
     }
 
-    Flickable {
-        id: flick
+    ColumnLayout {
+        id: column
         anchors.fill: parent
         anchors.margins: root.margin
-        clip: true
-        contentWidth: width
-        contentHeight: column.implicitHeight
-        boundsBehavior: Flickable.StopAtBounds
+        spacing: 6
 
-        ColumnLayout {
-            id: column
-            width: flick.width
-            spacing: 12
+        // --- En-tête : titre, scan, interrupteur ---
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
 
-            // --- En-tête : titre, interrupteur, scan ---
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 12
-
-                StyledText {
-                    text: qsTr("Wi-Fi")
-                    font: Tokens.font.title.small
-                    Layout.fillWidth: true
-                }
-
-                IconButton {
-                    icon: "refresh"
-                    type: IconButton.Text
-                    disabled: !Nmcli.wifiEnabled
-                    opacity: Nmcli.scanning ? 0.5 : 1
-                    onClicked: Nmcli.rescanWifi()
-                }
-
-                StyledSwitch {
-                    checked: Nmcli.wifiEnabled
-                    onToggled: Nmcli.toggleWifi(null)
-                }
-            }
-
-            StyledText {
-                visible: !Nmcli.wifiEnabled
-                text: qsTr("Wi-Fi désactivé")
-                color: Colours.palette.m3onSurfaceVariant
+            WifiText {
+                text: qsTr("Wi-Fi")
+                size: 11
+                weight: Font.Medium
                 Layout.fillWidth: true
             }
 
-            // --- Réseau actif ---
-            Loader {
-                active: Nmcli.wifiEnabled && !!Nmcli.active
-                visible: active
-                Layout.fillWidth: true
-
-                sourceComponent: ActiveDetails {
-                    network: Nmcli.active
-                }
+            IconButton {
+                icon: "refresh"
+                type: IconButton.Text
+                font: Tokens.font.icon.builders.medium.size(13).build()
+                disabled: !Nmcli.wifiEnabled
+                opacity: Nmcli.scanning ? 0.5 : 1
+                onClicked: Nmcli.rescanWifi()
             }
 
-            // --- Réseaux disponibles ---
-            StyledText {
-                visible: Nmcli.wifiEnabled
-                text: qsTr("Réseaux disponibles")
-                color: Colours.palette.m3onSurfaceVariant
-                Layout.fillWidth: true
+            CompactSwitch {
+                checked: Nmcli.wifiEnabled
+                onToggled: Nmcli.toggleWifi(null)
             }
+        }
 
-            StyledText {
-                visible: Nmcli.wifiEnabled && root.available.length === 0
-                text: qsTr("Aucun réseau détecté")
-                color: Colours.palette.m3onSurfaceVariant
-                Layout.fillWidth: true
-            }
+        WifiText {
+            visible: !Nmcli.wifiEnabled
+            text: qsTr("Wi-Fi désactivé")
+            color: Colours.palette.m3onSurfaceVariant
+            Layout.fillWidth: true
+        }
 
-            Repeater {
-                model: Nmcli.wifiEnabled ? root.available : []
+        // --- Onglets ---
+        WifiTabs {
+            visible: Nmcli.wifiEnabled
+            Layout.fillWidth: true
+            tabs: [qsTr("Connecté"), qsTr("Disponibles"), qsTr("Enregistrés"), qsTr("Caché")]
+            currentIndex: root.currentTab
+            onCurrentIndexChanged: root.currentTab = currentIndex
+        }
 
-                delegate: ColumnLayout {
-                    id: item
-
-                    required property var modelData
-
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    function attempt(password: string): void {
-                        row.errorText = "";
-                        Nmcli.connectToNetwork(modelData.ssid, password, modelData.bssid, result => {
-                            if (result.success) {
-                                root.expandedSsid = "";
-                                prompt.clear();
-                            } else if (result.needsPassword) {
-                                row.errorText = qsTr("Mot de passe refusé");
-                            } else {
-                                row.errorText = result.error || qsTr("Échec de la connexion");
-                            }
-                        });
-                    }
-
-                    NetworkRow {
-                        id: row
-                        Layout.fillWidth: true
-                        network: item.modelData
-                        onConnectRequested: {
-                            if (Nmcli.connecting)
-                                return;
-                            errorText = "";
-                            if (item.modelData.isSecure && !Nmcli.hasSavedProfile(item.modelData.ssid)) {
-                                root.expandedSsid = root.expandedSsid === item.modelData.ssid ? "" : item.modelData.ssid;
-                                return;
-                            }
-                            root.expandedSsid = "";
-                            Nmcli.connectToNetworkWithPasswordCheck(item.modelData.ssid, item.modelData.isSecure, result => {
-                                if (result.success)
-                                    return;
-                                if (result.needsPassword)
-                                    root.expandedSsid = item.modelData.ssid;
-                                else
-                                    errorText = result.error || qsTr("Échec de la connexion");
-                            }, item.modelData.bssid);
-                        }
-                    }
-
-                    PasswordPrompt {
-                        id: prompt
-                        visible: root.expandedSsid === item.modelData.ssid
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-                        Layout.bottomMargin: 6
-                        onVisibleChanged: if (visible)
-                            focusField()
-                        onSubmitted: password => item.attempt(password)
-                    }
-
-                    Connections {
-                        target: Nmcli
-
-                        function onConnectionFailed(ssid: string): void {
-                            if (ssid === item.modelData.ssid && row.errorText === "")
-                                row.errorText = qsTr("Échec de la connexion");
-                        }
-                    }
-                }
-            }
-
-            // --- Réseau caché ---
-            TextButton {
-                visible: Nmcli.wifiEnabled && !root.showHiddenForm
-                text: qsTr("Réseau caché")
-                type: TextButton.Text
-                Layout.alignment: Qt.AlignLeft
-                onClicked: root.showHiddenForm = true
-            }
+        // --- Vue courante (défile si elle dépasse la hauteur maximale) ---
+        Flickable {
+            id: flick
+            visible: Nmcli.wifiEnabled
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            implicitHeight: Nmcli.wifiEnabled ? view.implicitHeight : 0
+            contentWidth: width
+            contentHeight: view.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
 
             Loader {
-                active: Nmcli.wifiEnabled && root.showHiddenForm
-                visible: active
-                Layout.fillWidth: true
-                Layout.leftMargin: 8
-                Layout.rightMargin: 8
+                id: view
+                width: flick.width
 
-                sourceComponent: HiddenNetworkForm {
-                    onClosed: root.showHiddenForm = false
+                sourceComponent: {
+                    switch (root.currentTab) {
+                    case 0:
+                        return connectedView;
+                    case 1:
+                        return availableView;
+                    case 2:
+                        return savedView;
+                    default:
+                        return hiddenView;
+                    }
                 }
             }
+        }
+    }
 
-            // --- Réseaux enregistrés ---
-            StyledText {
-                visible: Nmcli.wifiEnabled && Nmcli.savedConnectionSsids.length > 0
-                text: qsTr("Réseaux enregistrés")
-                color: Colours.palette.m3onSurfaceVariant
-                Layout.fillWidth: true
-            }
+    Component {
+        id: connectedView
 
-            Repeater {
-                model: Nmcli.wifiEnabled ? Nmcli.savedConnectionSsids : []
+        ActiveDetails {
+            network: Nmcli.active
+        }
+    }
 
-                delegate: SavedRow {
-                    required property string modelData
+    Component {
+        id: availableView
 
-                    ssid: modelData
-                    Layout.fillWidth: true
-                }
-            }
+        AvailableList {}
+    }
+
+    Component {
+        id: savedView
+
+        SavedList {}
+    }
+
+    Component {
+        id: hiddenView
+
+        HiddenNetworkForm {
+            onClosed: root.currentTab = 0
         }
     }
 }

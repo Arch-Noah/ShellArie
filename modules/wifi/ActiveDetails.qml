@@ -5,12 +5,12 @@ import qs.components
 import qs.components.controls
 import qs.services
 
-// Réseau actif : SSID, signal, sécurité, bouton de déconnexion et détails repliables.
+// Vue « Connecté » : réseau actif, ses informations et le bouton de déconnexion.
 ColumnLayout {
     id: root
 
-    required property var network
-    property bool expanded
+    // Réseau actif (AccessPoint) ou null
+    property var network
 
     readonly property var details: Nmcli.wirelessDeviceDetails
 
@@ -38,99 +38,108 @@ ColumnLayout {
         return value && value.length > 0 ? value : "—";
     }
 
-    RowLayout {
+    WifiText {
+        visible: !root.network
+        text: qsTr("Aucun réseau connecté")
+        color: Colours.palette.m3onSurfaceVariant
         Layout.fillWidth: true
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
-        spacing: 10
+        Layout.margins: 6
+    }
 
-        MaterialIcon {
+    RowLayout {
+        visible: !!root.network
+        Layout.fillWidth: true
+        Layout.leftMargin: 6
+        Layout.rightMargin: 6
+        spacing: 8
+
+        WifiIcon {
             text: "wifi"
             color: Colours.palette.m3primary
-            fontStyle: Tokens.font.icon.medium
+            size: 14
         }
 
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 0
 
-            StyledText {
+            WifiText {
                 text: (root.network?.ssid ?? "")
-                font: Tokens.font.body.medium
+                size: 10
+                weight: Font.Medium
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
 
-            StyledText {
+            WifiText {
                 text: qsTr("Connecté") + " · " + (root.network?.strength ?? 0) + "% · " + ((root.network?.isSecure ?? false) ? root.network.security : qsTr("Ouvert"))
                 color: Colours.palette.m3onSurfaceVariant
                 elide: Text.ElideRight
                 Layout.fillWidth: true
             }
         }
-
-        IconButton {
-            icon: root.expanded ? "expand_less" : "expand_more"
-            type: IconButton.Text
-            onClicked: root.expanded = !root.expanded
-        }
     }
 
     GridLayout {
-        visible: root.expanded
+        visible: !!root.network
         Layout.fillWidth: true
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
+        Layout.leftMargin: 6
+        Layout.rightMargin: 6
         columns: 2
-        columnSpacing: 16
-        rowSpacing: 4
+        columnSpacing: 12
+        rowSpacing: 3
 
-        StyledText {
+        WifiText {
+            size: 8
             text: qsTr("Adresse IP")
             color: Colours.palette.m3onSurfaceVariant
         }
-        StyledText {
+        WifiText {
             text: root.orDash(root.details?.ipAddress ?? "")
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignRight
         }
 
-        StyledText {
+        WifiText {
+            size: 8
             text: qsTr("Passerelle")
             color: Colours.palette.m3onSurfaceVariant
         }
-        StyledText {
+        WifiText {
             text: root.orDash(root.details?.gateway ?? "")
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignRight
         }
 
-        StyledText {
+        WifiText {
+            size: 8
             text: qsTr("DNS")
             color: Colours.palette.m3onSurfaceVariant
         }
-        StyledText {
+        WifiText {
             text: root.orDash((root.details?.dns ?? []).join(", "))
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignRight
             wrapMode: Text.WordWrap
         }
 
-        StyledText {
+        WifiText {
+            size: 8
             text: qsTr("Adresse MAC")
             color: Colours.palette.m3onSurfaceVariant
         }
-        StyledText {
+        WifiText {
             text: root.orDash(root.details?.macAddress ?? "")
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignRight
         }
 
-        StyledText {
+        WifiText {
+            size: 8
             text: qsTr("Fréquence")
             color: Colours.palette.m3onSurfaceVariant
         }
-        StyledText {
+        WifiText {
             text: root.frequencyText(root.network?.frequency ?? 0)
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignRight
@@ -138,11 +147,14 @@ ColumnLayout {
     }
 
     TextButton {
-        visible: root.expanded
+        visible: !!root.network
         text: qsTr("Déconnecter")
         type: TextButton.Tonal
+        font: Tokens.font.body.builders.small.size(9).build()
+        horizontalPadding: 8
+        verticalPadding: 3
         Layout.alignment: Qt.AlignRight
-        Layout.rightMargin: 8
+        Layout.rightMargin: 6
         onClicked: Nmcli.disconnectFromNetwork()
     }
 }
