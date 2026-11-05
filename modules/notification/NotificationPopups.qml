@@ -237,6 +237,8 @@ PanelWindow {
                                         font.weight: Font.Bold
                                         font.pixelSize: 14 * popupWindow.uiScale
                                         wrapMode: Text.Wrap
+                                        maximumLineCount: 2
+                                        elide: Text.ElideRight
                                         visible: false
                                     }
 
@@ -246,6 +248,8 @@ PanelWindow {
                                         font: hiddenSummary.font
                                         color: _theme.text
                                         wrapMode: Text.Wrap
+                                        maximumLineCount: 2
+                                        elide: Text.ElideRight
                                     }
                                 }
 
@@ -262,6 +266,9 @@ PanelWindow {
                                         font.weight: Font.Normal
                                         font.pixelSize: 12 * popupWindow.uiScale
                                         wrapMode: Text.Wrap
+                                        maximumLineCount: 4
+                                        elide: Text.ElideRight
+                                        lineHeight: 1.4
                                         textFormat: Text.StyledText
                                         visible: false
                                     }
@@ -272,6 +279,8 @@ PanelWindow {
                                         font: hiddenBody.font
                                         color: _theme.subtext0
                                         wrapMode: Text.Wrap
+                                        maximumLineCount: 4
+                                        elide: Text.ElideRight
                                         lineHeight: 1.4
                                         textFormat: Text.StyledText
                                     }
