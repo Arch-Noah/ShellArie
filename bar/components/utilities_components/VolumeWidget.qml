@@ -9,6 +9,9 @@ import qs.utils
 Rectangle {
     id: root
     
+    // ScreenState de l'écran : un clic sur le widget ouvre le panneau Son
+    property var screenState
+
     property int volumePct: 0
     property bool isMuted: false
     property string desc: ""
@@ -185,11 +188,6 @@ Rectangle {
         }
     }
     
-    Process {
-        id: clickProcess
-        command: [Paths.qsManager, "toggle", "volume"]
-    }
-    
     MouseArea {
         id: ma
         anchors.fill: parent
@@ -197,7 +195,10 @@ Rectangle {
         propagateComposedEvents: true
         onPressed: mouse.accepted = false
         onReleased: mouse.accepted = false
-        onClicked: clickProcess.running = true
+        onClicked: {
+            if (root.screenState)
+                root.screenState.audio = !root.screenState.audio;
+        }
         z: -1
     }
 }

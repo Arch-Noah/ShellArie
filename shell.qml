@@ -54,6 +54,14 @@ Scope {
         }
     }
 
+    IpcHandler {
+        target: "sound"
+        function toggle(): void {
+            const state = ShellState.forActive();
+            if (state) state.audio = !state.audio;
+        }
+    }
+
     Bar.BarWindow {
         id: bar
     }

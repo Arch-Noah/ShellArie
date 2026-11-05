@@ -11,21 +11,30 @@ PersistentProperties {
     property bool dashboard
     property bool wifi
     property bool bluetooth
+    property bool audio
     property bool utilities
     property bool sidebar
 
-    // Un seul des panneaux dashboard / wifi / bluetooth est ouvert à la fois
+    // Un seul des panneaux dashboard / wifi / bluetooth / audio est ouvert à la fois
     onDashboardChanged: if (dashboard) {
         wifi = false;
         bluetooth = false;
+        audio = false;
     }
     onWifiChanged: if (wifi) {
         dashboard = false;
         bluetooth = false;
+        audio = false;
     }
     onBluetoothChanged: if (bluetooth) {
         dashboard = false;
         wifi = false;
+        audio = false;
+    }
+    onAudioChanged: if (audio) {
+        dashboard = false;
+        wifi = false;
+        bluetooth = false;
     }
 
     // Dashboard state

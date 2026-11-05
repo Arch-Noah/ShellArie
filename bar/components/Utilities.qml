@@ -84,7 +84,9 @@ RowLayout {
             
             BatteryWidget {}
             
-            VolumeWidget {}
+            VolumeWidget {
+                screenState: utilitiesLayout.screenState
+            }
             
             BrightnessWidget {}
             
