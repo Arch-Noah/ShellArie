@@ -17,6 +17,8 @@ Item {
     readonly property bool known: Nmcli.hasSavedProfile(network.ssid)
 
     signal connectRequested
+    // Demande explicite de saisie d'un mot de passe (aussi pour un réseau déjà enregistré)
+    signal passwordRequested
 
     implicitHeight: layout.implicitHeight
 
@@ -78,7 +80,7 @@ Item {
                 }
 
                 WifiText {
-                    text: (root.network.isSecure ? root.network.security : qsTr("Ouvert")) + " · " + Math.round(root.network.strength) + " %" + (root.known ? " · " + qsTr("Enregistré") : "")
+                    text: (root.network.isSecure ? root.network.security : qsTr("Ouvert")) + " · " + Math.round(root.network.strength) + " %" + (root.known ? " · " + qsTr("Enregistré") : (root.network.isSecure ? " · " + qsTr("Mot de passe requis") : ""))
                     size: 8
                     color: Colours.palette.m3onSurfaceVariant
                     elide: Text.ElideRight
@@ -93,11 +95,12 @@ Item {
                 color: Colours.palette.m3primary
             }
 
-            WifiIcon {
+            WifiButton {
                 visible: root.network.isSecure && !root.connectingThis
-                text: "lock"
-                size: 13
-                color: Colours.palette.m3onSurfaceVariant
+                icon: "key"
+                tint: Colours.palette.m3onSurfaceVariant
+                implicitHeight: 28
+                onClicked: root.passwordRequested()
             }
         }
 

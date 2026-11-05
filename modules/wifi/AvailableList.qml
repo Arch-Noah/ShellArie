@@ -90,6 +90,12 @@ ColumnLayout {
                     id: row
                     Layout.fillWidth: true
                     network: item.modelData
+                    onPasswordRequested: {
+                        if (Nmcli.connecting)
+                            return;
+                        errorText = "";
+                        root.expandedSsid = root.expandedSsid === item.modelData.ssid ? "" : item.modelData.ssid;
+                    }
                     onConnectRequested: {
                         if (Nmcli.connecting)
                             return;

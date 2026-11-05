@@ -24,6 +24,7 @@ Item {
 
     // Flèches gauche / droite : changer de vue
     focus: true
+    Keys.onEscapePressed: screenState.wifi = false
     Keys.onLeftPressed: currentTab = Math.max(0, currentTab - 1)
     Keys.onRightPressed: currentTab = Math.min(tabIcons.length - 1, currentTab + 1)
 
