@@ -14,13 +14,61 @@ Item {
 
     readonly property var items: Notifs.notClosed
 
+    // Notifications identiques (application, titre, corps) regroupées, la plus récente en premier
+    readonly property var groups: {
+        const map = new Map();
+        const out = [];
+        for (const n of items) {
+            const key = (n.appName || "") + "\u0001" + (n.summary || "") + "\u0001" + (n.body || "");
+            let g = map.get(key);
+            if (!g) {
+                g = {
+                    key: key,
+                    items: []
+                };
+                map.set(key, g);
+                out.push(g);
+            }
+            g.items.push(n);
+        }
+        return out;
+    }
+
+    // Modèle du Repeater : remplacé seulement si la composition des groupes change, pour ne pas
+    // reconstruire les cartes (et casser une animation) à chaque mise à jour d'une heure.
+    property var groupModel: []
+    property string groupSig
+
+    onGroupsChanged: {
+        const sig = groups.map(g => g.key + ":" + g.items.map(n => n.time.getTime()).join(",")).join("|");
+        if (sig !== groupSig) {
+            groupSig = sig;
+            groupModel = groups;
+        }
+    }
+
+    // Groupes dépliés (par clé), conservés tant que le centre est ouvert
+    property var expandedKeys: ({})
+
+    function toggleGroup(key: string): void {
+        const copy = Object.assign({}, expandedKeys);
+        if (copy[key])
+            delete copy[key];
+        else
+            copy[key] = true;
+        expandedKeys = copy;
+    }
+
     focus: true
     Keys.onEscapePressed: {
         if (screenState)
             screenState.notifCenter = false;
     }
 
-    Component.onCompleted: forceActiveFocus()
+    Component.onCompleted: {
+        forceActiveFocus();
+        groupsChanged();
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -154,13 +202,15 @@ Item {
                 spacing: 8
 
                 Repeater {
-                    model: root.items
+                    model: root.groupModel
 
-                    delegate: NotifCard {
+                    delegate: NotifGroup {
                         required property var modelData
 
                         Layout.fillWidth: true
-                        notif: modelData
+                        group: modelData
+                        expanded: root.expandedKeys[modelData.key] === true
+                        onToggleRequested: root.toggleGroup(modelData.key)
                     }
                 }
             }

@@ -12,6 +12,16 @@ Rectangle {
 
     required property var notif
 
+    // Nombre de notifications identiques regroupées derrière cette carte (1 = pas de groupe)
+    property int groupCount: 1
+    property bool groupExpanded
+
+    signal clicked
+    signal closeRequested
+
+    // Boutons d'action : on ignore ceux sans libellé (ils s'afficheraient en pastille vide)
+    readonly property var visibleActions: notif.actions.filter(a => a.text && a.text.trim().length > 0)
+
     readonly property bool critical: notif.urgency === 2
     readonly property bool hasImage: !!notif.image && notif.image.length > 0
     property bool expanded
@@ -20,12 +30,16 @@ Rectangle {
     radius: 16
     color: critical ? Qt.alpha(Colours.palette.m3error, 0.12) : Colours.tPalette.m3surfaceContainer
 
-    // Un clic sur la carte déplie ou replie le corps
+    // Un clic sur la carte déplie ou replie le corps (ou le groupe, géré par le parent)
     StateLayer {
         anchors.fill: parent
         radius: root.radius
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.expanded = !root.expanded
+        onClicked: {
+            if (root.groupCount <= 1)
+                root.expanded = !root.expanded;
+            root.clicked();
+        }
     }
 
     RowLayout {
@@ -86,12 +100,48 @@ Rectangle {
                     color: Colours.palette.m3onSurfaceVariant
                 }
 
+                // Badge du groupe : nombre de notifications et chevron qui pivote
+                Rectangle {
+                    visible: root.groupCount > 1
+                    implicitWidth: badge.implicitWidth + 12
+                    implicitHeight: 20
+                    radius: 10
+                    color: Qt.alpha(Colours.palette.m3primary, 0.2)
+
+                    RowLayout {
+                        id: badge
+                        anchors.centerIn: parent
+                        spacing: 2
+
+                        PanelText {
+                            text: "×" + root.groupCount
+                            size: 8
+                            weight: Font.DemiBold
+                            color: Colours.palette.m3primary
+                        }
+
+                        PanelIcon {
+                            text: "expand_more"
+                            size: 12
+                            color: Colours.palette.m3primary
+                            rotation: root.groupExpanded ? 180 : 0
+
+                            Behavior on rotation {
+                                NumberAnimation {
+                                    duration: 280
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                        }
+                    }
+                }
+
                 PanelButton {
                     icon: "close"
                     tint: Colours.palette.m3onSurfaceVariant
                     implicitWidth: 22
                     implicitHeight: 22
-                    onClicked: root.notif.close()
+                    onClicked: root.closeRequested()
                 }
             }
 
@@ -119,13 +169,13 @@ Rectangle {
 
             // Boutons d'action
             RowLayout {
-                visible: root.notif.actions.length > 0
+                visible: root.visibleActions.length > 0
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 spacing: 6
 
                 Repeater {
-                    model: root.notif.actions
+                    model: root.visibleActions
 
                     delegate: PanelButton {
                         required property int index
