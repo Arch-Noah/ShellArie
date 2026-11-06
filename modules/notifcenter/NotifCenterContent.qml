@@ -14,12 +14,12 @@ Item {
 
     readonly property var items: Notifs.notClosed
 
-    // Notifications identiques (application, titre, corps) regroupées, la plus récente en premier
+    // Notifications de même titre regroupées (quel que soit le contenu), la plus récente en premier
     readonly property var groups: {
         const map = new Map();
         const out = [];
         for (const n of items) {
-            const key = (n.appName || "") + "\u0001" + (n.summary || "") + "\u0001" + (n.body || "");
+            const key = n.summary || "";
             let g = map.get(key);
             if (!g) {
                 g = {
